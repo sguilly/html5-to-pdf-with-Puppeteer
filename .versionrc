@@ -1,0 +1,41 @@
+{
+  "types": [
+    {"type": "build", "hidden": true},
+    {"type": "ci", "hidden": true},
+    {"type": "chore", "section": "Other", "hidden": false},
+    {"type": "docs", "section": "Docs", "hidden": true},
+    {"type": "feat", "section": "Features", "hidden": false},
+    {"type": "fix", "section": "Bug Fixes", "hidden": false},
+    {"type": "perf", "hidden": true},
+    {"type": "refactor", "hidden": true},
+    {"type": "revert", "hidden": true},
+    {"type": "style", "hidden": true},
+    {"type": "test", "hidden": true}
+  ],
+  "commitUrlFormat": "{{host}}/{{owner}}/{{repository}}/commits/{{hash}}",
+  "compareUrlFormat": "{{host}}/{{owner}}/{{repository}}/branches/compare/{{currentTag}}%0D{{previousTag}}",
+  "bumpFiles": [
+    {
+      "filename": "package.json"
+    },
+    {
+      "filename": "package-lock.json"
+    },
+    {
+      "filename": "./scripts/standard-version-updater.js",
+      "updater": "./scripts/standard-version-updater.js"
+    },
+    {
+      "filename": "docker-compose.yaml",
+      "updater": "./scripts/nothing-updater.js"
+    },
+    {
+      "filename": "docker-compose-PREPROD.yaml",
+      "updater": "./scripts/nothing-updater.js"
+    },
+    {
+      "filename": "sonar-project.properties",
+      "updater": "./scripts/nothing-updater.js"
+    }
+  ]
+}
