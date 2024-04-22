@@ -1,0 +1,59 @@
+version: '3.4'
+
+networks:
+  proxy:
+    external: true
+
+services:
+  base-api:
+    image: s3pweb/base-api:IMAGE_TAG
+
+    networks:
+      - proxy
+
+    configs:
+      - source: base-api.env
+        target: /usr/local/app/.env
+
+    deploy:
+      mode: replicated
+      replicas: 1
+
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+        monitor: 30s
+
+      restart_policy:
+        # no / any / on-failure
+        condition: any
+        delay: 30s
+
+      resources:
+        limits:
+          memory: 500M
+
+      labels:
+        # Traefik 2
+        traefik.enable: 'true'
+        traefik.docker.network: proxy
+        traefik.http.services.base-api.loadbalancer.server.port: 8000
+        # Traefik 2 - external
+        traefik.http.routers.base-api.rule: Host("base-api.s3pweb.xyz")
+        traefik.http.routers.base-api.tls: 'true'
+        traefik.http.routers.base-api.middlewares: traefik-bureau-ipwhitelist@docker, authorization-100-ratelimit@docker
+        # Traefik 2 - internal
+        traefik.http.routers.base-api-internal.rule: Host("base-api.s3pweb.xyz") && (PathPrefix("/metrics"))
+        traefik.http.routers.base-api-internal.tls: 'true'
+        traefik.http.routers.base-api-internal.middlewares: traefik-localhost-ipwhitelist@docker
+        # Prometheus Swarm
+        prometheus-job: base-api
+        prometheus-port: 3000
+        prometheus-scrape-network: proxy
+        prometheus-env: preprod
+
+configs:
+  base-api.env:
+    external: true

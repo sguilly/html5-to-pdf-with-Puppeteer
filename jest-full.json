@@ -1,0 +1,21 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "testRegex": ".*spec.ts$",
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "collectCoverageFrom": [
+    "src/**/*.(t|j)s"
+  ],
+  "coverageDirectory": "coverage",
+  "coverageReporters": [
+    "lcov",
+    "text"
+  ],
+  "testEnvironment": "node",
+  "testResultsProcessor": "jest-sonar-reporter"
+}

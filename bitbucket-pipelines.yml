@@ -1,0 +1,102 @@
+image: node:20
+
+clone:
+  depth: full
+
+# Services: https://support.atlassian.com/bitbucket-cloud/docs/databases-and-service-containers/
+definitions:
+  services:
+    docker:
+      memory: 2048
+
+# Steps templating
+# @see https://support.atlassian.com/bitbucket-cloud/docs/write-a-pipe-for-bitbucket-pipelines/#Step-9---Set-up-CI-CD-to-automate-testing-and-updates
+ciTests: &ciTests
+  - step:
+      name: Tests
+      runs-on: preprod.bureau
+      caches:
+        - node
+      script:
+        - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+        - npm ci --no-audit --no-progress
+        - npm run build
+        - npm run lint
+        - npm run test:ci
+
+ciTestsSonarCloud: &ciTestsSonarCloud
+  - step:
+      name: Tests & Sonar
+      runs-on: preprod.bureau
+      caches:
+        - node
+      services:
+        - docker
+      script:
+        - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+        - npm ci --no-audit --no-progress
+        - npm run build
+        - npm run lint
+        - npm run test:ci
+        - pipe: sonarsource/sonarcloud-scan:2.0.0
+        - pipe: sonarsource/sonarcloud-quality-gate:0.1.6
+
+pipelines:
+  default:
+    - <<: *ciTests
+
+  branches:
+    '{develop}':
+      - <<: *ciTestsSonarCloud
+
+    '{preprod}':
+      - <<: *ciTests
+      - step:
+          name: Compile & push to PreProd
+          runs-on: preprod.bureau
+          trigger: manual
+          deployment: test
+          caches:
+            - node
+            - docker
+          services:
+            - docker
+          script:
+            - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+            - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            - npm install -g commit-and-tag-version @s3pweb/release-message-creator
+            - npm run release:pipeline:preprod
+            - npm run compile:pipeline:preprod
+            - git push --follow-tags
+            - curl --fail -X POST ${WEBHOOK_PREPROD}
+            - npm run release:message:preprod -- -w ${DISCORD_WEBHOOK_PREPROD}
+
+    '{main}':
+      - <<: *ciTestsSonarCloud
+      - step:
+          name: Compile & push to PRODUCTION
+          runs-on: preprod.bureau
+          trigger: manual
+          deployment: production
+          caches:
+            - node
+            - docker
+          services:
+            - docker
+          script:
+            - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+            - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            - npm install -g commit-and-tag-version @s3pweb/release-message-creator
+            - npm run release:pipeline:prod
+            - npm run compile:pipeline:prod
+            - git push --follow-tags
+            - curl --fail -X POST ${WEBHOOK_PROD}
+            - npm run release:message:prod -- -w ${DISCORD_WEBHOOK_PROD}
+
+  custom:
+    npm-audit:
+      - step:
+          name: Npm audit
+          runs-on: preprod.bureau
+          script:
+            - npm audit --omit=dev --audit-level=high
