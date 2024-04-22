@@ -1,6 +1,4 @@
-# Generate Test Docs
-*.jpg
-*.pdf
+# Inspired from https://github.com/github/gitignore/blob/master/Node.gitignore
 
 # Logs
 logs
@@ -9,6 +7,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+# OS
+.DS_Store
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -53,6 +54,7 @@ typings/
 
 # Optional npm cache directory
 .npm
+.npmrc
 
 # Optional eslint cache
 .eslintcache
@@ -106,3 +108,27 @@ dist
 
 # TernJS port file
 .tern-port
+
+# IDEs and editors
+.idea
+.project
+.classpath
+.c9
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# sonar
+.scannerwork
+
+# electron
+out
+
+# jest-junit reporter
+test-results
+test-report.xml
