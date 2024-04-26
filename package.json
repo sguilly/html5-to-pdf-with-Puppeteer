@@ -33,8 +33,13 @@
   },
   "dependencies": {
     "@nestjs/common": "10.3.8",
+    "@nestjs/config": "3.2.2",
     "@nestjs/core": "10.3.8",
     "@nestjs/platform-express": "10.3.8",
+    "@s3pweb/nestjs-common": "2.4.0",
+    "hashi-vault-js": "0.4.13",
+    "helmet": "7.1.0",
+    "prom-client": "15.1.2",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.1"
   },
