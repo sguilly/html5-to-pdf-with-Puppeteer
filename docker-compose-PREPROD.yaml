@@ -39,7 +39,7 @@ services:
         # Traefik 2
         traefik.enable: 'true'
         traefik.docker.network: proxy
-        traefik.http.services.base-api.loadbalancer.server.port: 8000
+        traefik.http.services.base-api.loadbalancer.server.port: 3000
         # Traefik 2 - external
         traefik.http.routers.base-api.rule: Host("base-api.s3pweb.xyz")
         traefik.http.routers.base-api.tls: 'true'

@@ -30,7 +30,7 @@ export class ConfigUtils {
     );
     const apiSecrets = await vault.readKVSecret(
       token.client_token,
-      `${vaultEnv}/auth-api`,
+      `${vaultEnv}/base-api`,
       undefined,
       'kv',
     );
