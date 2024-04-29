@@ -4,6 +4,7 @@ import { PromServiceMock } from './prom-service.mock';
 import { ConfigService } from '@nestjs/config';
 import { Constants } from '../constants.utils';
 import { MockMongooseModel } from './mockMongooseModel';
+import { Entity } from '../models/entity.model';
 
 export const commonProvidersMock = [
   {
@@ -35,5 +36,5 @@ export const commonProvidersMock = [
       }),
     },
   },
-  MockMongooseModel('ModelClass.name', Constants.resourceDb),
+  MockMongooseModel(Entity.name, Constants.resourceDb),
 ];
