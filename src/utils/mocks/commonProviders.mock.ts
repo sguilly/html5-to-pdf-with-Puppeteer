@@ -20,17 +20,8 @@ export const commonProvidersMock = [
     provide: ConfigService,
     useValue: {
       get: jest.fn((key: string) => {
-        if (key === 'logger') {
-          return {
-            name: 'tests',
-            logger: {
-              source: false,
-              console: {
-                enable: false,
-                level: 'error',
-              },
-            },
-          };
+        if (key === 'key from the config') {
+          return 'value to mock';
         }
         return null;
       }),
