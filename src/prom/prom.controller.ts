@@ -1,6 +1,8 @@
 import { Controller, Get, Header } from '@nestjs/common';
 import * as promClient from 'prom-client';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Internal')
 @Controller()
 export class PromController {
   @Get('metrics')

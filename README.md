@@ -65,4 +65,5 @@ OVERRIDE_LOGGER=true
 APP_NAME=base-api-REPO
 TEST_MODE=false
 COMPRESSION=true
+SWAGGER=false
 ```

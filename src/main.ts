@@ -4,6 +4,7 @@ import { CorrelationIdMiddleware, HttpExceptionsLoggerFilter, LoggingService } f
 import helmet from 'helmet';
 import { Constants } from './utils/constants.utils';
 import compression from 'compression';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -27,6 +28,20 @@ async function bootstrap() {
   app.use(helmet());
   // Tracking ID
   app.use(CorrelationIdMiddleware());
+
+  if (Constants.convertConfigToBoolean(process.env.SWAGGER)) {
+    // Swagger configuration
+    const options = new DocumentBuilder()
+      .setTitle('S3PWeb / Base API')
+      .setVersion('v1')
+      // Set security
+      //.addApiKey({ name: 'token', type: 'apiKey' }, 'token')
+      //.addBearerAuth()
+      .build();
+
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup('explorer', app, document);
+  }
 
   await app.listen(3000);
 }
