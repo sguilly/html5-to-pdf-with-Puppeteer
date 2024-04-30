@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { RequestTrackerMiddleware } from './utils/middlewares/request-tracker.middleware';
 import { LoggingModule } from '@s3pweb/nestjs-common';
@@ -8,6 +8,7 @@ import { ConfigUtils } from './utils/config.utils';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Constants } from './utils/constants.utils';
 import { EntitiesModule } from './entities/entities.module';
+import { APP_PIPE } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -34,7 +35,13 @@ import { EntitiesModule } from './entities/entities.module';
     }),
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      // For every single request coming to the application, apply the validation pipe
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({ transform: true, whitelist: true, skipMissingProperties: false }),
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
