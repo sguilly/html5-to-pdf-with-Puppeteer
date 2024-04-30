@@ -13,32 +13,16 @@ export class ConfigUtils {
 
     const vaultEnv = process.env.VAULT_ENV;
 
-    const token = await vault.loginWithAppRole(
-      process.env.VAULT_ROLE ?? '',
-      process.env.VAULT_SECRET ?? '',
-    );
+    const token = await vault.loginWithAppRole(process.env.VAULT_ROLE ?? '', process.env.VAULT_SECRET ?? '');
 
     if (ConfigUtils.isErrorResponse(token)) {
       throw new Error('Fail to login to Vault.');
     }
 
-    const mongoSecrets = await vault.readKVSecret(
-      token.client_token,
-      `${vaultEnv}/mongo`,
-      undefined,
-      'kv',
-    );
-    const apiSecrets = await vault.readKVSecret(
-      token.client_token,
-      `${vaultEnv}/base-api`,
-      undefined,
-      'kv',
-    );
+    const mongoSecrets = await vault.readKVSecret(token.client_token, `${vaultEnv}/mongo`, undefined, 'kv');
+    const apiSecrets = await vault.readKVSecret(token.client_token, `${vaultEnv}/base-api`, undefined, 'kv');
 
-    if (
-      ConfigUtils.isErrorResponse(mongoSecrets) ||
-      ConfigUtils.isErrorResponse(apiSecrets)
-    ) {
+    if (ConfigUtils.isErrorResponse(mongoSecrets) || ConfigUtils.isErrorResponse(apiSecrets)) {
       throw new Error('Fail to get some secrets.');
     }
 
@@ -68,10 +52,7 @@ export class ConfigUtils {
   }
 
   public static isErrorResponse(
-    error:
-      | Vault.LoginWithAppRoleResponse
-      | Vault.ReadKVSecretResponse
-      | Vault.ErrorResponse,
+    error: Vault.LoginWithAppRoleResponse | Vault.ReadKVSecretResponse | Vault.ErrorResponse,
   ): error is Vault.ErrorResponse {
     return Object.hasOwnProperty.call(error, 'isVaultError');
   }

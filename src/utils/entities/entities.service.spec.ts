@@ -1,10 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EntitiesService } from './entities.service';
-import {
-  execLeanPromise,
-  MockMongooseModel,
-  mongooseMock,
-} from '../mocks/mockMongooseModel';
+import { execLeanPromise, MockMongooseModel, mongooseMock } from '../mocks/mockMongooseModel';
 import { Constants } from '../constants.utils';
 import { Types } from 'mongoose';
 import { commonProvidersMock } from '../mocks/commonProviders.mock';
@@ -15,11 +11,7 @@ describe(EntitiesService.name, () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ...commonProvidersMock,
-        EntitiesService,
-        MockMongooseModel(Entity.name, Constants.resourceDb),
-      ],
+      providers: [...commonProvidersMock, EntitiesService, MockMongooseModel(Entity.name, Constants.resourceDb)],
     }).compile();
 
     service = module.get<EntitiesService>(EntitiesService);
@@ -40,12 +32,8 @@ describe(EntitiesService.name, () => {
 
   describe('getEntity', () => {
     it('should not fail', async () => {
-      mongooseMock.findById = jest
-        .fn()
-        .mockImplementationOnce(() => execLeanPromise(entity));
-      await expect(service.getEntity('uuid', entityId)).resolves.toEqual(
-        entity,
-      );
+      mongooseMock.findById = jest.fn().mockImplementationOnce(() => execLeanPromise(entity));
+      await expect(service.getEntity('uuid', entityId)).resolves.toEqual(entity);
     });
   });
 });

@@ -15,10 +15,7 @@ export class AppController {
   }
 
   @Get('entities/:id')
-  async getEntity(
-    @Headers(correlationId) uuid: string,
-    @Param('id') id: string,
-  ) {
+  async getEntity(@Headers(correlationId) uuid: string, @Param('id') id: string) {
     this.log.debug({ uuid }, `Get entity ${id} by ID.`);
     const mongoId = new Types.ObjectId(id);
     return this.entitiesService.getEntity(uuid, mongoId);

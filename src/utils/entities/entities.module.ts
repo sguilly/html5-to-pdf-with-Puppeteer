@@ -5,12 +5,7 @@ import { Constants } from '../constants.utils';
 import { Entity, EntitySchema } from '../models/entity.model';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature(
-      [{ name: Entity.name, schema: EntitySchema }],
-      Constants.resourceDb,
-    ),
-  ],
+  imports: [MongooseModule.forFeature([{ name: Entity.name, schema: EntitySchema }], Constants.resourceDb)],
   providers: [EntitiesService],
   exports: [EntitiesService],
 })

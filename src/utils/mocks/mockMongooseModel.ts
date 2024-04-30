@@ -36,21 +36,11 @@ function execLeanPromise(value) {
   };
 }
 
-const MockMongooseModel = (
-  name: string,
-  connection?: string,
-): { useValue: any; provide: string } => {
+const MockMongooseModel = (name: string, connection?: string): { useValue: any; provide: string } => {
   return {
     provide: getModelToken(name, connection),
     useValue: mongooseMock,
   };
 };
 
-export {
-  MockMongooseModel,
-  mongooseMock,
-  mongooseQueryMock,
-  execPromise,
-  execReject,
-  execLeanPromise,
-};
+export { MockMongooseModel, mongooseMock, mongooseQueryMock, execPromise, execReject, execLeanPromise };

@@ -30,9 +30,7 @@ describe(AppController.name, () => {
     it('should return an entity', () => {
       jest.spyOn(entitiesService, 'getEntity').mockResolvedValueOnce(entity);
 
-      expect(
-        appController.getEntity('uuid', '5ac3788a93b8f33d12c35253'),
-      ).resolves.toEqual({
+      expect(appController.getEntity('uuid', '5ac3788a93b8f33d12c35253')).resolves.toEqual({
         _id: new Types.ObjectId('5ac3788a93b8f33d12c35253'),
         name: 'S3PWEB',
         mainStructureId: new Types.ObjectId('5b0fe2abb460bd24abe32654'),

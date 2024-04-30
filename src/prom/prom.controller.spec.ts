@@ -19,9 +19,7 @@ describe('Prom Controller', () => {
 
   describe('getMetrics', () => {
     it('should return nothing', async () => {
-      jest
-        .spyOn(promClient.register, 'metrics')
-        .mockImplementation((): any => Promise.resolve(''));
+      jest.spyOn(promClient.register, 'metrics').mockImplementation((): any => Promise.resolve(''));
       expect(await controller.getMetrics()).toStrictEqual('');
     });
   });

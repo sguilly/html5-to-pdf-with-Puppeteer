@@ -1,10 +1,6 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {
-  CorrelationIdMiddleware,
-  HttpExceptionsLoggerFilter,
-  LoggingService,
-} from '@s3pweb/nestjs-common';
+import { CorrelationIdMiddleware, HttpExceptionsLoggerFilter, LoggingService } from '@s3pweb/nestjs-common';
 import helmet from 'helmet';
 
 async function bootstrap() {
