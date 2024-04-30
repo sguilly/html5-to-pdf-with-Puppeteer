@@ -38,6 +38,7 @@
     "@nestjs/mongoose": "10.0.6",
     "@nestjs/platform-express": "10.3.8",
     "@s3pweb/nestjs-common": "2.4.0",
+    "compression": "1.7.4",
     "hashi-vault-js": "0.4.13",
     "helmet": "7.1.0",
     "mongoose": "8.3.2",
