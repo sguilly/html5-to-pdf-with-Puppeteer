@@ -68,8 +68,9 @@ pipelines:
             - npm run release:pipeline:preprod
             - npm run compile:pipeline:preprod
             - git push --follow-tags
-            - curl --fail -X POST ${WEBHOOK_PREPROD}
-            - npm run release:message:preprod -- -w ${DISCORD_WEBHOOK_PREPROD}
+            # Uncomment the following lines when pre-production is ready
+            #- curl --fail -X POST ${WEBHOOK_PREPROD}
+            #- npm run release:message:preprod -- -w ${DISCORD_WEBHOOK_PREPROD}
 
     '{main}':
       - <<: *ciTestsSonarCloud
@@ -90,8 +91,9 @@ pipelines:
             - npm run release:pipeline:prod
             - npm run compile:pipeline:prod
             - git push --follow-tags
-            - curl --fail -X POST ${WEBHOOK_PROD}
-            - npm run release:message:prod -- -w ${DISCORD_WEBHOOK_PROD}
+            # Uncomment the following lines when production is ready
+            #- curl --fail -X POST ${WEBHOOK_PROD}
+            #- npm run release:message:prod -- -w ${DISCORD_WEBHOOK_PROD}
 
   custom:
     npm-audit:
