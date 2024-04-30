@@ -2,6 +2,7 @@ import { Controller, Get, Headers, Param } from '@nestjs/common';
 import { correlationId, LoggingService } from '@s3pweb/nestjs-common';
 import { EntitiesService } from './entities/entities.service';
 import { Types } from 'mongoose';
+import { Entity } from './utils/models/entity.model';
 
 @Controller('api/v1')
 export class AppController {
@@ -15,7 +16,7 @@ export class AppController {
   }
 
   @Get('entities/:id')
-  async getEntity(@Headers(correlationId) uuid: string, @Param('id') id: string) {
+  async getEntity(@Headers(correlationId) uuid: string, @Param('id') id: string): Promise<Entity> {
     this.log.debug({ uuid }, `Get entity ${id} by ID.`);
     const mongoId = new Types.ObjectId(id);
     return this.entitiesService.getEntity(uuid, mongoId);
