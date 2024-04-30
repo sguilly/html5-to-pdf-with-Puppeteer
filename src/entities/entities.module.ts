@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { EntitiesService } from './entities.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Constants } from '../constants.utils';
-import { Entity, EntitySchema } from '../models/entity.model';
+import { Constants } from '../utils/constants.utils';
+import { Entity, EntitySchema } from '../utils/models/entity.model';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Entity.name, schema: EntitySchema }], Constants.resourceDb)],

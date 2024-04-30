@@ -7,7 +7,7 @@ import { PromModule } from './prom/prom.module';
 import { ConfigUtils } from './utils/config.utils';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Constants } from './utils/constants.utils';
-import { EntitiesModule } from './utils/entities/entities.module';
+import { EntitiesModule } from './entities/entities.module';
 
 @Module({
   imports: [

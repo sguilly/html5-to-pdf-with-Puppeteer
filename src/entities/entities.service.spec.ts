@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EntitiesService } from './entities.service';
-import { execLeanPromise, MockMongooseModel, mongooseMock } from '../mocks/mockMongooseModel';
-import { Constants } from '../constants.utils';
+import { execLeanPromise, MockMongooseModel, mongooseMock } from '../utils/mocks/mockMongooseModel';
+import { Constants } from '../utils/constants.utils';
 import { Types } from 'mongoose';
-import { commonProvidersMock } from '../mocks/commonProviders.mock';
-import { Entity } from '../models/entity.model';
+import { commonProvidersMock } from '../utils/mocks/commonProviders.mock';
+import { Entity } from '../utils/models/entity.model';
 
 describe(EntitiesService.name, () => {
   let service: EntitiesService;

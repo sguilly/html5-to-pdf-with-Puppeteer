@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { LoggingService } from '@s3pweb/nestjs-common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Constants } from '../constants.utils';
+import { Constants } from '../utils/constants.utils';
 import { Model, Types } from 'mongoose';
-import { Entity, EntityDocument } from '../models/entity.model';
+import { Entity, EntityDocument } from '../utils/models/entity.model';
 
 @Injectable()
 export class EntitiesService {

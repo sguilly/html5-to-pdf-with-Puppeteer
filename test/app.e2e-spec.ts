@@ -20,6 +20,6 @@ describe('AppController (e2e)', () => {
   });
 
   it('/entities/:id (GET)', () => {
-    return request(app.getHttpServer()).get('/entities/5ac3788a93b8f33d12c35253').expect(200);
+    return request(app.getHttpServer()).get('/api/v1/entities/5ac3788a93b8f33d12c35253').expect(200);
   });
 });

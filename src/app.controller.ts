@@ -1,9 +1,9 @@
 import { Controller, Get, Headers, Param } from '@nestjs/common';
 import { correlationId, LoggingService } from '@s3pweb/nestjs-common';
-import { EntitiesService } from './utils/entities/entities.service';
+import { EntitiesService } from './entities/entities.service';
 import { Types } from 'mongoose';
 
-@Controller()
+@Controller('api/v1')
 export class AppController {
   private readonly log;
 

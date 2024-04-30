@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { commonProvidersMock } from './utils/mocks/commonProviders.mock';
-import { EntitiesService } from './utils/entities/entities.service';
+import { EntitiesService } from './entities/entities.service';
 import { Types } from 'mongoose';
 import { Entity } from './utils/models/entity.model';
 
