@@ -19,7 +19,7 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [ node.labels.keycloak == true ]
+        constraints: [ node.labels.backend == true ]
 
       update_config:
         parallelism: 1
