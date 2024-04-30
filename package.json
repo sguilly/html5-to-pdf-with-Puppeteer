@@ -29,7 +29,9 @@
     "release:pipeline:preprod": "commit-and-tag-version --releaseCommitMessageFormat \"chore(release): version {{currentTag}} [skip ci]\" --no-verify --prerelease",
     "release:pipeline:prod": "commit-and-tag-version --releaseCommitMessageFormat \"chore(release): version {{currentTag}} [skip ci]\" --no-verify",
     "release:message:preprod": "create-release-message -m \"Livraison de Base Api en pre-prod, version dev-latest :\"",
-    "release:message:prod": "create-release-message -m \"Livraison de Base Api en PRODUCTION, version %s (ancienne %s) :\""
+    "release:message:prod": "create-release-message -m \"Livraison de Base Api en PRODUCTION, version %s (ancienne %s) :\"",
+    "detect-secrets:hook": "git diff --name-only -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline",
+    "detect-secrets:scan": "git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline"
   },
   "dependencies": {
     "@nestjs/common": "10.3.8",

@@ -9,6 +9,10 @@
 5. Changer toutes les instances de `base-api` et `base_api` (dans le fichier prom.service.ts) par le nom de la nouvelle
    API.
 6. Lancer la commande `npm i && npm run build && npm run test` pour vérifier que tout fonctionne correctement.
+7. Installer [detect-secrets](https://github.com/Yelp/detect-secrets?tab=readme-ov-file#installation) (en global sur la
+   machine).
+8. Une fois qu'il y a du code, on peut configurer
+   le [pipeline Bitbucket](https://s3pweb.atlassian.net/wiki/spaces/S3PDEV/pages/2165833770/Int+gration+continue+CI+et+livraison+continue+CD).
 
 ## Intégration continue
 

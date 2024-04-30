@@ -8,6 +8,8 @@ definitions:
   services:
     docker:
       memory: 2048
+  caches:
+    sonar: ~/.sonar/cache
 
 # Steps templating
 # @see https://support.atlassian.com/bitbucket-cloud/docs/write-a-pipe-for-bitbucket-pipelines/#Step-9---Set-up-CI-CD-to-automate-testing-and-updates
@@ -30,6 +32,7 @@ ciTestsSonarCloud: &ciTestsSonarCloud
       runs-on: preprod.bureau
       caches:
         - node
+        - sonar
       services:
         - docker
       script:
@@ -41,6 +44,17 @@ ciTestsSonarCloud: &ciTestsSonarCloud
         - pipe: sonarsource/sonarcloud-scan:2.0.0
         - pipe: sonarsource/sonarcloud-quality-gate:0.1.6
 
+detectSecrets: &detectSecrets
+  - step:
+      name: Detect secrets
+      runs-on: preprod.bureau
+      caches:
+        - node
+      script:
+        - apt update && apt install python3-pip -y
+        - pip install detect-secrets --break-system-packages
+        - npm run detect-secrets:scan
+
 pipelines:
   default:
     - <<: *ciTests
@@ -48,6 +62,7 @@ pipelines:
   branches:
     '{develop}':
       - <<: *ciTestsSonarCloud
+      - <<: *detectSecrets
 
     '{preprod}':
       - <<: *ciTests
@@ -74,6 +89,7 @@ pipelines:
 
     '{main}':
       - <<: *ciTestsSonarCloud
+      - <<: *detectSecrets
       - step:
           name: Compile & push to PRODUCTION
           runs-on: preprod.bureau
@@ -102,3 +118,4 @@ pipelines:
           runs-on: preprod.bureau
           script:
             - npm audit --omit=dev --audit-level=high
+      - <<: *detectSecrets
