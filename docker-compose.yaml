@@ -6,7 +6,7 @@ networks:
 
 services:
   base-api:
-    image: s3pweb/base-api:0.0.1
+    image: s3pweb/base-api:0.0.2
 
     networks:
       - proxy
