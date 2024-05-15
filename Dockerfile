@@ -48,4 +48,5 @@ ENV NODE_ENV production
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s \
   CMD node /usr/local/app/healthcheck.js
 
-CMD ["dumb-init", "node", "dist/main.js"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["node", "dist/main.js"]
