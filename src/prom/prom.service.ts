@@ -33,7 +33,7 @@ export class PromService implements MetricsInterface {
     });
 
     this.errors = new promClient.Counter({
-      name: 'base_api_errors_counter',
+      name: 'base_api_errors_count',
       help: 'Errors counter by services and methods',
       labelNames: ['type', 'function'],
     });
