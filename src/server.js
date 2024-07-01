@@ -107,15 +107,22 @@ const swaggerSpec = swaggerJSDoc(options);
         case "pdf":
           buffer = await page.pdf({
             format: "A4",
-            printBackground: data.printBackground,
-            margin: data.pageNumber
-              ? { top: 30, right: 30, bottom: 60, left: 30 }
-              : {},
+            printBackground: data.printBackground ? data.printBackground : false,
+            margin: 
+              data.margin 
+                ? data.margin 
+                : data.pageNumber
+                  ? { top: 30, right: 30, bottom: 60, left: 30 }
+                  : {},
             displayHeaderFooter: data.pageNumber,
-            headerTemplate: "<div></div>",
-            footerTemplate: `<div style="width: 100%; font-size: 9px;
-                        padding: 5px 5px 0; color: black; position: relative;">
-                        <div style="position: absolute; right: 50%; bottom: 15px;"><span class="pageNumber"></span>/<span class="totalPages"></span></div></div>`,
+            headerTemplate: data.headerTemplate ? data.headerTemplate : "<div></div>",
+            footerTemplate: 
+              data.footerTemplate
+                ? data.footerTemplate
+                : data.pageNumber
+                 ? `<div style="width: 100%; font-size: 9px; padding: 5px 5px 0; color: black; position: relative;">
+                    <div style="position: absolute; right: 50%; bottom: 15px;"><span class="pageNumber"></span>/<span class="totalPages"></span></div></div>`
+                 : "<div></div>",
           });
           contentType = "application/pdf";
           break;
