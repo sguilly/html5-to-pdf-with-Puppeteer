@@ -1,0 +1,33 @@
+{
+  "name": "s3pweb-html5-to-pdf-with-Puppeteer-api-DEV",
+  "testMode": false,
+  "logger": {
+    "source": true,
+    "console": {
+      "enable": true,
+      "level": "trace"
+    },
+    "file": {
+      "enable": false,
+      "level": "info",
+      "dir": "./log"
+    },
+    "server": {
+      "enable": false,
+      "level": "trace",
+      "url": "0.0.0.0",
+      "port": "9998",
+      "type": "elk"
+    },
+    "ringBuffer": {
+      "enable": false,
+      "size": 2
+    }
+  },
+  "swagger": {
+    "enabled": true
+  },
+  "compression": {
+    "enabled": false
+  }
+}

@@ -1,14 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { RequestTrackerMiddleware } from './utils/middlewares/request-tracker.middleware';
-import { LoggingModule } from '@s3pweb/nestjs-common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_PIPE } from '@nestjs/core';
+import { LoggingModule } from '@s3pweb/nestjs-common';
+import { GeneratePdfModule } from './generate-pdf/generate-pdf.module';
 import { PromModule } from './prom/prom.module';
 import { ConfigUtils } from './utils/config.utils';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Constants } from './utils/constants.utils';
-import { EntitiesModule } from './entities/entities.module';
-import { APP_PIPE } from '@nestjs/core';
+import { RequestTrackerMiddleware } from './utils/middlewares/request-tracker.middleware';
 
 @Module({
   imports: [
@@ -22,19 +19,10 @@ import { APP_PIPE } from '@nestjs/core';
       },
       inject: [ConfigService],
     }),
-    EntitiesModule,
     PromModule,
-    MongooseModule.forRootAsync({
-      inject: [ConfigService],
-      connectionName: Constants.resourceDb,
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('mongo.resourcesUri'),
-        appName: 'base-api',
-        compressors: ['zlib'],
-      }),
-    }),
+    GeneratePdfModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
     {
       // For every single request coming to the application, apply the validation pipe

@@ -4,9 +4,9 @@
 
 1. Créer un nouveau dépot Bitbucket vide.
 2. Cloner le nouveau projet.
-3. Cloner le projet `s3pweb-base-api` dans un dossier temporaire.
+3. Cloner le projet `s3pweb-html5-to-pdf-with-Puppeteer` dans un dossier temporaire.
 4. Copier l'intégralité du contenu du projet dans le dossier de la nouvelle API.
-5. Changer toutes les instances de `base-api` et `base_api` (dans le fichier prom.service.ts) par le nom de la nouvelle
+5. Changer toutes les instances de `html5-to-pdf-with-Puppeteer` et `base_api` (dans le fichier prom.service.ts) par le nom de la nouvelle
    API.
 6. Lancer la commande `npm i && npm run build && npm run test` pour vérifier que tout fonctionne correctement.
 7. Installer [detect-secrets](https://github.com/Yelp/detect-secrets?tab=readme-ov-file#installation) (en global sur la
@@ -122,7 +122,7 @@ VAULT_ROLE=
 VAULT_SECRET=
 # Optional
 OVERRIDE_LOGGER=true
-APP_NAME=base-api-REPO
+APP_NAME=html5-to-pdf-with-Puppeteer-REPO
 TEST_MODE=false
 COMPRESSION=true
 SWAGGER=false

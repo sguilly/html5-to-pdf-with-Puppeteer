@@ -1,10 +1,9 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorrelationIdMiddleware, HttpExceptionsLoggerFilter, LoggingService } from '@s3pweb/nestjs-common';
 import helmet from 'helmet';
+import { AppModule } from './app.module';
 import { Constants } from './utils/constants.utils';
-import compression from 'compression';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,10 +15,6 @@ async function bootstrap() {
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new HttpExceptionsLoggerFilter(logger, httpAdapter));
 
-  if (Constants.convertConfigToBoolean(process.env.COMPRESSION)) {
-    app.use(compression());
-  }
-
   // FOR DEBUG ONLY
   // Logs all the mongoose queries to check filters
   // mongoose.set('debug', true);
@@ -29,11 +24,12 @@ async function bootstrap() {
   // Tracking ID
   app.use(CorrelationIdMiddleware());
 
-  if (Constants.convertConfigToBoolean(process.env.SWAGGER)) {
+  if (Constants.isSwaggerEnabled) {
     // Swagger configuration
     const options = new DocumentBuilder()
-      .setTitle('S3PWeb / Base API')
+      .setTitle('S3PWeb / API to convert html5 to image or pdf')
       .setVersion('v1')
+      .addServer('http://localhost:3000/v1', 'Development server')
       // Set security
       //.addApiKey({ name: 'token', type: 'apiKey' }, 'token')
       //.addBearerAuth()
@@ -43,7 +39,7 @@ async function bootstrap() {
     SwaggerModule.setup('explorer', app, document);
   }
 
-  await app.listen(3000);
+  await app.listen(3080);
 }
 
 bootstrap();

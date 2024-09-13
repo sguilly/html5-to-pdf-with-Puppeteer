@@ -1,30 +1,45 @@
-import { correlationId } from '@s3pweb/nestjs-common';
+import config from 'config';
 
 export class Constants {
+  // ================================================================
+  // Correlation & Api params constants
+  // ================================================================
+  static readonly idParamApiObj = {
+    name: 'id',
+    type: String,
+    required: true,
+    example: 'test',
+  };
+
+  static readonly correlationIdHeader = 'X-Correlation-Id';
+  static readonly correlationId = 'x-correlation-id';
   static readonly correlationIdHeaderObj = {
-    name: correlationId,
+    name: Constants.correlationId,
     required: false,
     description: 'Do not use',
   };
 
-  public static convertConfigToBoolean(value: any): boolean {
-    return value === true || value === 'true';
-  }
+  // ================================================================
+  // Authentication & Authorization constants
+  // ================================================================
+  static readonly authorizationHeader = 'Authorization';
+  static readonly authorizationHeaderObj = {
+    name: Constants.authorizationHeader,
+    required: true,
+    description: 'OAuth v2 access token',
+  };
 
-  public static convertConfigToNumber(value: any, defaultValue = 0): number {
-    return Number(value) || defaultValue;
-  }
+  static readonly token = 'token';
 
-  static readonly resourceDb = 'resources';
-  static readonly configurationDb = 'configuration';
+  // ================================================================
+  // Configuration constants
+  // ================================================================
+  static readonly configName: string = config.get('name');
+  static readonly isSwaggerEnabled: boolean = config.get('swagger.enabled');
+  static readonly isCompressionEnabled: boolean = config.get('compression.enabled');
 
-  public static sleep(seconds: number) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, seconds * 1000);
-    });
-  }
-
-  public static isNullOrEmpty(value: any): boolean {
-    return value == null || value === '';
-  }
+  // ================================================================
+  // Files constants
+  // ================================================================
+  static readonly maxFileSizeInBytes: number = 5242880; // 5 Megabytes
 }

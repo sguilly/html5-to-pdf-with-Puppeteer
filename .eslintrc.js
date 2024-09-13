@@ -23,5 +23,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'max-len': ['error', { code: 120, ignoreComments: true }],
     'no-console': 'error',
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
   },
 };
