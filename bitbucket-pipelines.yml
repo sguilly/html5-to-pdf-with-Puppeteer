@@ -8,8 +8,8 @@ definitions:
   services:
     docker:
       memory: 2048
-  caches:
-    sonar: ~/.sonar/cache
+  #caches:
+  #sonar: ~/.sonar/cache
 
 # Steps templating
 # @see https://support.atlassian.com/bitbucket-cloud/docs/write-a-pipe-for-bitbucket-pipelines/#Step-9---Set-up-CI-CD-to-automate-testing-and-updates

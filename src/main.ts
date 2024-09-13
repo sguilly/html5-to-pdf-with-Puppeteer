@@ -29,7 +29,7 @@ async function bootstrap() {
     const options = new DocumentBuilder()
       .setTitle('S3PWeb / API to convert html5 to image or pdf')
       .setVersion('v1')
-      .addServer('http://localhost:3000/v1', 'Development server')
+      .addServer('http://localhost:3080/v1', 'Development server')
       // Set security
       //.addApiKey({ name: 'token', type: 'apiKey' }, 'token')
       //.addBearerAuth()

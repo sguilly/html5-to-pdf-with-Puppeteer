@@ -39,18 +39,18 @@ services:
         # Traefik 2
         traefik.enable: 'true'
         traefik.docker.network: proxy
-        traefik.http.services.html5-to-pdf-with-Puppeteer.loadbalancer.server.port: 3000
+        traefik.http.services.html5-to-pdf-with-Puppeteer.loadbalancer.server.port: 3080
         # Traefik 2 - external
-        traefik.http.routers.html5-to-pdf-with-Puppeteer.rule: Host("html5-to-pdf-with-Puppeteer.s3pweb.xyz")
+        traefik.http.routers.html5-to-pdf-with-Puppeteer.rule: Host("html5-to-pdf-with-puppeteer.s3pweb.xyz")
         traefik.http.routers.html5-to-pdf-with-Puppeteer.tls: 'true'
         traefik.http.routers.html5-to-pdf-with-Puppeteer.middlewares: traefik-bureau-ipwhitelist@docker, authorization-100-ratelimit@docker
         # Traefik 2 - internal
-        traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.rule: Host("html5-to-pdf-with-Puppeteer.s3pweb.xyz") && (PathPrefix("/metrics"))
+        traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.rule: Host("html5-to-pdf-with-puppeteer.s3pweb.xyz") && (PathPrefix("/metrics"))
         traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.tls: 'true'
         traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.middlewares: traefik-localhost-ipwhitelist@docker
         # Prometheus Swarm
         prometheus-job: html5-to-pdf-with-Puppeteer
-        prometheus-port: 3000
+        prometheus-port: 3080
         prometheus-scrape-network: proxy
         prometheus-env: preprod
 

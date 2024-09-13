@@ -3,7 +3,7 @@ const http = require('http');
 const options = {
   method: 'GET',
   host: 'localhost',
-  port: '3000',
+  port: '3080',
   path: '/metrics',
 };
 
@@ -16,7 +16,7 @@ const request = http.request(options, (res) => {
   }
 });
 
-request.on('error', function(err) {
+request.on('error', function (err) {
   console.log('ERROR: ', err);
   process.exit(1);
 });

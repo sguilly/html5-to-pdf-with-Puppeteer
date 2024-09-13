@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-
 export class ConvertTools {
   async loadPage(page, data: any) {
     if (data.url) {
@@ -42,7 +40,10 @@ export class ConvertTools {
       displayHeaderFooter: data.pageNumber,
       headerTemplate: '<div></div>',
       footerTemplate:
-        '<div style="width: 100%; font-size: 9px; padding: 5px 5px 0; color: black; position: relative;"><div style="position: absolute; right: 50%; bottom: 15px;"><span class="pageNumber"></span>/<span class="totalPages"></span></div></div>',
+        '<div style="width: 100%; font-size: 9px; padding: 5px 5px 0; color: black; position: relative;">' +
+        '<div style="position: absolute; right: 50%; bottom: 15px;">' +
+        '<span class="pageNumber"></span>/<span class="totalPages"></span>' +
+        '</div></div>',
     });
   }
 

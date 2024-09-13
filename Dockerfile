@@ -5,7 +5,7 @@ FROM node:20.12.2-alpine AS dist
 
 WORKDIR /tmp/
 
-COPY .npmrc package.json package-lock.json tsconfig.json tsconfig.build.json ./
+COPY package.json package-lock.json tsconfig.json tsconfig.build.json ./
 
 RUN npm install
 
@@ -20,7 +20,7 @@ FROM node:20.12.2-alpine AS node_modules
 
 WORKDIR /tmp/
 
-COPY .npmrc package.json package-lock.json ./
+COPY  package.json package-lock.json ./
 
 RUN npm pkg delete scripts.prepare && npm install --omit=dev
 
@@ -41,7 +41,7 @@ COPY --chown=node:node /healthcheck.js ./healthcheck.js
 COPY --chown=node:node --from=node_modules /tmp/node_modules ./node_modules
 COPY --chown=node:node --from=dist /tmp/dist ./dist
 
-EXPOSE 3000
+EXPOSE 3080
 
 ENV NODE_ENV production
 
