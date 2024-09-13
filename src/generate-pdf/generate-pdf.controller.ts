@@ -28,7 +28,7 @@ export class GeneratePdfController {
   @ApiQuery({ name: 'format', required: true, description: 'Image or pdf' })
   @ApiQuery({ name: 'url', required: true, description: 'Url of the page' })
   @ApiQuery({ name: 'waitFor', required: false, description: 'Wait for this id css' })
-  async get(@Query() query: { format: string; url: string; waitFor?: string }, @Res() res: Response) {
+  async generateFromUrlParams(@Query() query: { format: string; url: string; waitFor?: string }, @Res() res: Response) {
     const { url, format, waitFor } = query;
 
     if (!url || !format) {
@@ -51,7 +51,7 @@ export class GeneratePdfController {
 
   @Post()
   @ApiBody({ type: GenerateDocumentDto })
-  async post(@Body() body: GenerateDocumentDto, @Res() res: Response) {
+  async generateFromHtml(@Body() body: GenerateDocumentDto, @Res() res: Response) {
     try {
       await validateOrReject(body);
 
