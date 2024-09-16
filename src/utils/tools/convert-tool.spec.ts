@@ -1,4 +1,4 @@
-import { ConvertTools } from '../tools/convert-tool';
+import { ConvertTools } from './convert-tool';
 
 describe('ConvertTools', () => {
   let convertTools: ConvertTools;

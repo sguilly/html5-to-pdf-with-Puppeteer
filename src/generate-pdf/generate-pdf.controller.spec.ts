@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingService } from '@s3pweb/nestjs-common';
+import { ConvertTools } from '../utils/tools/convert-tool';
 import { GeneratePdfController } from './generate-pdf.controller';
 import { GeneratePdfService } from './generate-pdf.service';
-import { ConvertTools } from './tools/convert-tool';
 
 describe('GeneratePdfController', () => {
   let controller: GeneratePdfController;

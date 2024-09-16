@@ -1,8 +1,12 @@
+import { Page } from 'puppeteer';
+import { GeneratePdfFromHtmlDto } from '../../generate-pdf/dto/generate-pdf-html-dto';
+import { GeneratePdfFromUrlDto } from '../../generate-pdf/dto/generate-pdf-url-dto';
+
 export class ConvertTools {
-  async loadPage(page, data: any) {
-    if (data.url) {
+  static async loadPage(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
+    if ('url' in data) {
       await page.goto(data.url);
-    } else if (data.html) {
+    } else if ('html' in data) {
       await page.setContent(data.html, { waitUntil: 'networkidle0' });
     } else {
       throw new Error('Either url or html must be provided');
@@ -12,7 +16,7 @@ export class ConvertTools {
       await page.waitForSelector('#' + data.waitFor, { visible: true });
     }
   }
-  async waitForImages(page) {
+  static async waitForImages(page: Page) {
     await page.evaluate(async () => {
       const selectors = Array.from(document.querySelectorAll('img'));
       await Promise.all(
@@ -27,12 +31,12 @@ export class ConvertTools {
       );
     });
   }
-  async setPageDimensions(page) {
+  static async setPageDimensions(page: Page) {
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
     const bodyHeight = await page.evaluate(() => document.body.scrollHeight);
     await page.setViewport({ width: bodyWidth, height: bodyHeight });
   }
-  async generatePdf(page, data: any) {
+  static async generatePdf(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
     return await page.pdf({
       format: 'A4',
       printBackground: data.printBackground,
@@ -47,7 +51,7 @@ export class ConvertTools {
     });
   }
 
-  async generateImage(page) {
+  static async generateImage(page: Page) {
     return await page.screenshot();
   }
 }

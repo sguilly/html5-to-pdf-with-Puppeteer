@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConvertTools } from '../utils/tools/convert-tool';
 import { GeneratePdfService } from './generate-pdf.service';
-import { ConvertTools } from './tools/convert-tool';
 
 // Mock de puppeteer-cluster
 jest.mock('puppeteer-cluster', () => ({

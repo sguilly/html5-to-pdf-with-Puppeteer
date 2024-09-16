@@ -2,37 +2,40 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Get,
+  Headers,
   HttpStatus,
   InternalServerErrorException,
   Post,
-  Query,
   Res,
 } from '@nestjs/common';
-import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { LoggingService } from '@s3pweb/nestjs-common';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { correlationId, LoggingService } from '@s3pweb/nestjs-common';
 import { validateOrReject } from 'class-validator';
 import { Response } from 'express';
-import { GenerateDocumentDto } from './dto/generate-pdf-dto';
+import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
+import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
 import { GeneratePdfService } from './generate-pdf.service';
 
 @ApiTags('generate')
-@Controller('generate-pdf')
+@Controller('v2/generate-pdf')
 export class GeneratePdfController {
   constructor(
     private readonly generatePdfService: GeneratePdfService,
     private readonly logger: LoggingService,
   ) {}
 
-  @Get()
-  @ApiQuery({ name: 'format', required: true, description: 'Image or pdf' })
-  @ApiQuery({ name: 'url', required: true, description: 'Url of the page' })
-  @ApiQuery({ name: 'waitFor', required: false, description: 'Wait for this id css' })
-  async generateFromUrlParams(@Query() query: { format: string; url: string; waitFor?: string }, @Res() res: Response) {
-    const { url, format, waitFor } = query;
+  @Post('url')
+  @ApiBody({ type: GeneratePdfFromUrlDto })
+  async generateFromUrlParams(
+    @Body()
+    body: GeneratePdfFromUrlDto,
+    @Res() res: Response,
+    @Headers(correlationId) uuid: string,
+  ): Promise<void> {
+    const { url, format, waitFor } = body;
 
     if (!url || !format) {
-      this.logger.warn('Invalid format value');
+      this.logger.warn({ uuid }, 'Invalid format value');
       throw new BadRequestException(
         'Please specify a format and a url like this: ?format=image&url=https://example.com',
       );
@@ -44,19 +47,23 @@ export class GeneratePdfController {
       res.set(response.headers);
       res.status(response.code).send(response.buffer);
     } catch (err) {
-      this.logger.error('Error occurred during document generation: ', err.stack);
+      this.logger.error({ uuid }, 'Error occurred during document generation: ', err.stack);
       throw new InternalServerErrorException('Error : ' + err.message);
     }
   }
 
-  @Post()
-  @ApiBody({ type: GenerateDocumentDto })
-  async generateFromHtml(@Body() body: GenerateDocumentDto, @Res() res: Response) {
+  @Post('html')
+  @ApiBody({ type: GeneratePdfFromHtmlDto })
+  async generateFromHtml(
+    @Body() body: GeneratePdfFromHtmlDto,
+    @Res() res: Response,
+    @Headers(correlationId) uuid: string,
+  ): Promise<void> {
     try {
       await validateOrReject(body);
 
       if (!['image', 'pdf'].includes(body.format)) {
-        this.logger.warn('Invalid format value');
+        this.logger.warn({ uuid }, 'Invalid format value');
         throw new BadRequestException('Invalid format.');
       }
 
@@ -65,7 +72,7 @@ export class GeneratePdfController {
       res.set(response.headers);
       res.status(response.code).send(response.buffer);
     } catch (err) {
-      this.logger.error('Error occurred during document generation: ', err.stack);
+      this.logger.error({ uuid }, 'Error occurred during document generation: ', err.stack);
 
       if (err instanceof BadRequestException) {
         res.status(HttpStatus.BAD_REQUEST).send('Bad request: ' + err.message);

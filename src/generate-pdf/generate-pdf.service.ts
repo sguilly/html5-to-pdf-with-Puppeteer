@@ -1,16 +1,24 @@
 /* eslint-disable max-len */
 import { Injectable, Logger } from '@nestjs/common';
+import { Page } from 'puppeteer';
 import { Cluster } from 'puppeteer-cluster';
-import { GenerateDocumentDto } from './dto/generate-pdf-dto';
-import { ConvertTools } from './tools/convert-tool';
+import { ConvertTools } from '../utils/tools/convert-tool';
+import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
+import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
+
+interface GenerateResponse {
+  headers: Record<string, string>;
+  code: number;
+  buffer: Buffer;
+}
 @Injectable()
 export class GeneratePdfService {
   private cluster: Cluster<any>;
   readonly logger = new Logger(GeneratePdfService.name);
 
-  constructor(private converTools: ConvertTools) {}
+  constructor() {}
 
-  async onModuleInit() {
+  async onModuleInit(uuid: string): Promise<void> {
     try {
       this.cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
@@ -23,45 +31,56 @@ export class GeneratePdfService {
 
       this.cluster.on('taskerror', (err, data, willRetry) => {
         if (willRetry) {
-          this.logger.warn(`Error while processing ${data}: ${err.message}. Retrying...`);
+          this.logger.warn({ uuid }, `Error while processing ${data}: ${err.message}. Retrying...`);
         } else {
-          this.logger.error(`Failed to process ${data}: ${err.message}`);
+          this.logger.error({ uuid }, `Failed to process ${data}: ${err.message}`);
         }
       });
     } catch (error) {
-      this.logger.error('Failed to initialize Puppeteer cluster', error.stack);
+      this.logger.error({ uuid }, 'Failed to initialize Puppeteer cluster', error.stack);
       // Rethrow the error to ensure proper application behavior
       throw error;
     }
   }
 
-  async generate(params: { format: string; url: string; waitFor?: string } | GenerateDocumentDto) {
+  async generate(params: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto): Promise<GenerateResponse> {
     try {
-      const task = async ({
-        page,
-        data,
-      }: {
-        page: any;
-        data: { format: string; url: string; waitFor?: string } | GenerateDocumentDto;
-      }) => {
+      const task = async ({ page, data }: { page: Page; data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto }) => {
         await page.setDefaultNavigationTimeout(15000);
         await page.emulateTimezone('Europe/Paris');
 
-        await this.converTools.loadPage(page, data);
-        await this.converTools.waitForImages(page);
-        await this.converTools.setPageDimensions(page);
+        await ConvertTools.loadPage(page, data);
+        await ConvertTools.waitForImages(page);
+        await ConvertTools.setPageDimensions(page);
 
         let buffer: Buffer;
         let contentType: string;
 
+        // switch (data.format) {
+        //   case 'pdf':
+        //     buffer = await ConvertTools.generatePdf(page, data);
+        //     contentType = 'application/pdf';
+        //     break;
+
+        //   case 'image':
+        //     buffer = await ConvertTools.generateImage(page);
+        //     contentType = 'image/jpg';
+        //     break;
+
+        //   default:
+        //     return { code: 400 };
+        // }
+
         switch (data.format) {
           case 'pdf':
-            buffer = await this.converTools.generatePdf(page, data);
+            const pdfBuffer = await ConvertTools.generatePdf(page, data);
+            buffer = Buffer.from(pdfBuffer); // Convert Uint8Array to Buffer here
             contentType = 'application/pdf';
             break;
 
           case 'image':
-            buffer = await this.converTools.generateImage(page);
+            const imageBuffer = await ConvertTools.generateImage(page);
+            buffer = Buffer.from(imageBuffer); // Convert Uint8Array to Buffer here
             contentType = 'image/jpg';
             break;
 
@@ -86,7 +105,7 @@ export class GeneratePdfService {
     }
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     await this.cluster?.close();
   }
 }
