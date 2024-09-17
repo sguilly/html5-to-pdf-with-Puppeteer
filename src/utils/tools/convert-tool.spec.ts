@@ -1,54 +1,60 @@
+import { Page } from 'puppeteer';
+import { GeneratePdfFromHtmlDto } from '../../generate-pdf/dto/generate-pdf-html-dto';
+import { GeneratePdfFromUrlDto } from '../../generate-pdf/dto/generate-pdf-url-dto';
 import { ConvertTools } from './convert-tool';
 
 describe('ConvertTools', () => {
-  let convertTools: ConvertTools;
-  let pageMock: any;
+  let pageMock: Partial<Page>;
 
   beforeEach(() => {
-    convertTools = new ConvertTools();
     pageMock = {
-      goto: jest.fn(),
-      setContent: jest.fn(),
-      waitForSelector: jest.fn(),
-      evaluate: jest.fn(),
-      setViewport: jest.fn(),
-      pdf: jest.fn(),
-      screenshot: jest.fn(),
+      goto: jest.fn().mockResolvedValue(undefined),
+      setContent: jest.fn().mockResolvedValue(undefined),
+      waitForSelector: jest.fn().mockResolvedValue(undefined),
+      evaluate: jest.fn().mockResolvedValue(undefined),
+      setViewport: jest.fn().mockResolvedValue(undefined),
+      pdf: jest.fn().mockResolvedValue(Buffer.from('')),
+      screenshot: jest.fn().mockResolvedValue(Buffer.from('')),
     };
   });
 
   it('should load a URL if provided', async () => {
-    const data = { url: 'http://example.com' };
-    await convertTools.loadPage(pageMock, data);
+    const data: GeneratePdfFromUrlDto = { url: 'http://example.com', format: 'pdf' };
+    await ConvertTools.loadPage(pageMock as Page, data);
     expect(pageMock.goto).toHaveBeenCalledWith('http://example.com');
   });
 
   it('should load HTML content if provided', async () => {
-    const data = { html: '<html></html>' };
-    await convertTools.loadPage(pageMock, data);
+    const data: GeneratePdfFromHtmlDto = { html: '<html></html>', format: 'pdf' };
+    await ConvertTools.loadPage(pageMock as Page, data);
     expect(pageMock.setContent).toHaveBeenCalledWith('<html></html>', { waitUntil: 'networkidle0' });
   });
 
   it('should throw an error if neither url nor html is provided', async () => {
-    const data = {};
-    await expect(convertTools.loadPage(pageMock, data)).rejects.toThrow('Either url or html must be provided');
+    const data = { format: 'pdf' } as GeneratePdfFromUrlDto;
+    await expect(ConvertTools.loadPage(pageMock as Page, data)).rejects.toThrow('Either url or html must be provided');
   });
 
   it('should wait for an image to load', async () => {
-    pageMock.evaluate.mockResolvedValueOnce(true);
-    await convertTools.waitForImages(pageMock);
+    pageMock.evaluate = jest.fn().mockResolvedValue(true);
+    await ConvertTools.waitForImages(pageMock as Page);
     expect(pageMock.evaluate).toHaveBeenCalled();
   });
 
   it('should set the page dimensions', async () => {
-    pageMock.evaluate.mockResolvedValueOnce(800).mockResolvedValueOnce(600);
-    await convertTools.setPageDimensions(pageMock);
+    pageMock.evaluate = jest.fn().mockResolvedValueOnce(800).mockResolvedValueOnce(600);
+    await ConvertTools.setPageDimensions(pageMock as Page);
     expect(pageMock.setViewport).toHaveBeenCalledWith({ width: 800, height: 600 });
   });
 
   it('should generate a PDF', async () => {
-    const data = { printBackground: true, pageNumber: true };
-    await convertTools.generatePdf(pageMock, data);
+    const data: GeneratePdfFromUrlDto = {
+      url: 'http://example.com',
+      format: 'pdf',
+      printBackground: true,
+      pageNumber: true,
+    };
+    await ConvertTools.generatePdf(pageMock as Page, data);
     expect(pageMock.pdf).toHaveBeenCalledWith({
       format: 'A4',
       printBackground: true,
@@ -56,13 +62,15 @@ describe('ConvertTools', () => {
       displayHeaderFooter: true,
       headerTemplate: '<div></div>',
       footerTemplate:
-        // eslint-disable-next-line max-len
-        '<div style="width: 100%; font-size: 9px; padding: 5px 5px 0; color: black; position: relative;"><div style="position: absolute; right: 50%; bottom: 15px;"><span class="pageNumber"></span>/<span class="totalPages"></span></div></div>',
+        '<div style="width: 100%; font-size: 9px; padding: 5px 5px 0; color: black; position: relative;">' +
+        '<div style="position: absolute; right: 50%; bottom: 15px;">' +
+        '<span class="pageNumber"></span>/<span class="totalPages"></span>' +
+        '</div></div>',
     });
   });
 
   it('should generate an image', async () => {
-    await convertTools.generateImage(pageMock);
+    await ConvertTools.generateImage(pageMock as Page);
     expect(pageMock.screenshot).toHaveBeenCalled();
   });
 });

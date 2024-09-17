@@ -56,21 +56,6 @@ export class GeneratePdfService {
         let buffer: Buffer;
         let contentType: string;
 
-        // switch (data.format) {
-        //   case 'pdf':
-        //     buffer = await ConvertTools.generatePdf(page, data);
-        //     contentType = 'application/pdf';
-        //     break;
-
-        //   case 'image':
-        //     buffer = await ConvertTools.generateImage(page);
-        //     contentType = 'image/jpg';
-        //     break;
-
-        //   default:
-        //     return { code: 400 };
-        // }
-
         switch (data.format) {
           case 'pdf':
             const pdfBuffer = await ConvertTools.generatePdf(page, data);

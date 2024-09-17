@@ -1,7 +1,8 @@
 #
 # Build dist
 #
-FROM node:20.12.2-alpine AS dist
+FROM node:20.14.0-slim AS dist
+
 
 WORKDIR /tmp/
 
@@ -16,7 +17,7 @@ RUN npm run build
 #
 # Build node_modules
 #
-FROM node:20.12.2-alpine AS node_modules
+FROM node:20.14.0-slim AS node_modules
 
 WORKDIR /tmp/
 
@@ -27,7 +28,7 @@ RUN npm pkg delete scripts.prepare && npm install --omit=dev
 #
 # Copy sources
 #
-FROM node:20.12.2-alpine
+FROM node:20.14.0-slim-alpine
 
 LABEL maintainer="S3PWeb <hotline@s3pweb.com>"
 

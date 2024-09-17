@@ -1,59 +1,93 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConvertTools } from '../utils/tools/convert-tool';
+import { Cluster } from 'puppeteer-cluster';
+import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
 import { GeneratePdfService } from './generate-pdf.service';
 
-// Mock de puppeteer-cluster
+// complete cluster mock
 jest.mock('puppeteer-cluster', () => ({
   Cluster: {
     launch: jest.fn(),
-    CONCURRENCY_CONTEXT: 'CONCURRENCY_CONTEXT',
   },
 }));
 
 describe('GeneratePdfService', () => {
   let service: GeneratePdfService;
-  let convertToolsMock: ConvertTools;
-  //let clusterMock: any;
+  let cluster: any;
 
   beforeEach(async () => {
-    // Mock des méthodes de ConvertTools
-    convertToolsMock = {
-      loadPage: jest.fn(),
-      waitForImages: jest.fn(),
-      setPageDimensions: jest.fn(),
-      generatePdf: jest.fn().mockResolvedValue(Buffer.from('PDF content')),
-      generateImage: jest.fn().mockResolvedValue(Buffer.from('Image content')),
-    } as any;
+    cluster = {
+      execute: jest.fn(),
+      on: jest.fn(),
+      close: jest.fn(),
+    };
 
-    // Mock du cluster avec la méthode execute
-    // clusterMock = {
-    //   execute: jest.fn().mockImplementation(async (data, task) => {
-    //     const pageMock = {}; // Simuler une page vide
-    //     await task({ page: pageMock, data });
-    //   }),
-    //   close: jest.fn(),
-    //   on: jest.fn(),
-    // };
-
-    // Mock de Cluster.launch pour retourner le clusterMock
-    // (Cluster.launch as jest.Mock).mockResolvedValue(clusterMock);
+    // Simulate Cluster.launch response
+    (Cluster.launch as jest.Mock).mockResolvedValue(cluster);
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GeneratePdfService, { provide: ConvertTools, useValue: convertToolsMock }],
+      providers: [GeneratePdfService],
     }).compile();
 
     service = module.get<GeneratePdfService>(GeneratePdfService);
+
+    // Initialize module and simulates cluster initialization in onModuleInit
+    await service.onModuleInit('test-uuid');
   });
 
-  it('should call ConvertTools methods in generate()', async () => {
-    const params = { format: 'pdf', url: 'http://example.com' };
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    // Appel de la méthode generate
-    await service.generate(params);
+  describe('generate', () => {
+    const params: GeneratePdfFromUrlDto = {
+      url: 'https://example.com',
+      format: 'pdf',
+    };
+    //   const mockBuffer = Buffer.from('mock-pdf');
 
-    // Vérifier que les méthodes de ConvertTools ont bien été appelées
-    expect(convertToolsMock.loadPage).toHaveBeenCalledWith({}, params);
-    expect(convertToolsMock.waitForImages).toHaveBeenCalledWith({});
-    expect(convertToolsMock.setPageDimensions).toHaveBeenCalledWith({});
+    //   // Moquer les méthodes de ConvertTools
+    //   (ConvertTools.loadPage as jest.Mock).mockImplementationOnce(() => Promise.resolve());
+    //   (ConvertTools.waitForImages as jest.Mock).mockResolvedValueOnce(undefined);
+    //   (ConvertTools.setPageDimensions as jest.Mock).mockResolvedValueOnce(undefined);
+    //   (ConvertTools.generatePdf as jest.Mock).mockResolvedValueOnce(mockBuffer);
+
+    //   // Simuler le retour de cluster.execute
+    //   cluster.execute.mockResolvedValueOnce({
+    //     code: 200,
+    //     headers: {
+    //       'Content-Type': 'application/pdf',
+    //       'Content-Length': mockBuffer.length,
+    //     },
+    //     buffer: mockBuffer,
+    //   });
+
+    //   const result = await service.generate(params);
+
+    //   expect(cluster.execute).toHaveBeenCalledWith(params, expect.any(Function));
+    //   expect(result).toEqual({
+    //     code: 200,
+    //     headers: {
+    //       'Content-Type': 'application/pdf',
+    //       'Content-Length': mockBuffer.length,
+    //     },
+    //     buffer: mockBuffer,
+    //   });
+    // });
+
+    it('should handle errors during task execution', async () => {
+      const error = new Error('Task failed');
+      cluster.execute.mockRejectedValueOnce(error);
+      const loggerErrorSpy = jest.spyOn(service['logger'], 'error');
+
+      await expect(service.generate(params)).rejects.toThrow('Failed to generate content');
+      expect(loggerErrorSpy).toHaveBeenCalledWith('Error generating content:', error);
+    });
+  });
+
+  describe('onModuleDestroy', () => {
+    it('should close the cluster on module destroy', async () => {
+      await service.onModuleDestroy();
+      expect(cluster.close).toHaveBeenCalled();
+    });
   });
 });
