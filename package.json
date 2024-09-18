@@ -25,7 +25,6 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": " jest --config ./test/jest-e2e.json",
     "compile:pipeline": "docker build -t s3pweb/html5-to-pdf-with-Puppeteer:dev-latest . -f ./Dockerfile && docker push s3pweb/html5-to-pdf-with-Puppeteer:dev-latest",
-    "compile:pipeline:beta": "docker build -t s3pweb/html5-to-pdf-with-Puppeteer:beta . -f ./Dockerfile && docker push s3pweb/html5-to-pdf-with-Puppeteer:beta",
     "compile:pipeline:preprod": "docker build -t s3pweb/html5-to-pdf-with-Puppeteer:${npm_package_version} . -f ./Dockerfile && docker push s3pweb/html5-to-pdf-with-Puppeteer:${npm_package_version}",
     "compile:pipeline:prod": "docker build -t s3pweb/html5-to-pdf-with-Puppeteer:${npm_package_version} . -f ./Dockerfile && docker push s3pweb/html5-to-pdf-with-Puppeteer:${npm_package_version}",
     "release": "commit-and-tag-version --releaseCommitMessageFormat \"chore(release): version {{currentTag}} [skip ci]\" -s --prerelease beta",
