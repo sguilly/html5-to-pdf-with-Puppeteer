@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { correlationId, LoggingService } from '@s3pweb/nestjs-common';
-import { validateOrReject } from 'class-validator';
 import { Response } from 'express';
 import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
 import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
@@ -27,11 +26,11 @@ export class GeneratePdfController {
   @Post('url')
   @ApiBody({ type: GeneratePdfFromUrlDto })
   async generateFromUrlParams(
-    @Body()
-    body: GeneratePdfFromUrlDto,
+    @Body() body: GeneratePdfFromUrlDto,
     @Res() res: Response,
     @Headers(correlationId) uuid: string,
   ): Promise<void> {
+    this.logger.log({ uuid }, 'call /v2/generate-pdf/url with data ' + JSON.stringify(body));
     const { url, format, waitFor } = body;
 
     if (!url || !format) {
@@ -42,9 +41,13 @@ export class GeneratePdfController {
     }
 
     try {
+      this.logger.log({ uuid }, 'Generating PDF from URL with data: ' + JSON.stringify(body));
       const response = await this.generatePdfService.generate({ url, format, waitFor });
+      this.logger.log({ uuid }, 'Generated response: ' + JSON.stringify(response));
 
-      res.set(response.headers);
+      if (response.headers) {
+        res.set(response.headers);
+      }
       res.status(response.code).send(response.buffer);
     } catch (err) {
       this.logger.error({ uuid }, 'Error occurred during document generation: ', err.stack);
@@ -60,7 +63,7 @@ export class GeneratePdfController {
     @Headers(correlationId) uuid: string,
   ): Promise<void> {
     try {
-      await validateOrReject(body);
+      this.logger.log({ uuid }, 'call /v2/generate-pdf/html with data' + JSON.stringify(body));
 
       if (!['image', 'pdf'].includes(body.format)) {
         this.logger.warn({ uuid }, 'Invalid format value');
@@ -68,8 +71,11 @@ export class GeneratePdfController {
       }
 
       const response = await this.generatePdfService.generate(body);
+      this.logger.log({ uuid }, 'Generated response: ' + JSON.stringify(response));
 
-      res.set(response.headers);
+      if (response.headers) {
+        res.set(response.headers);
+      }
       res.status(response.code).send(response.buffer);
     } catch (err) {
       this.logger.error({ uuid }, 'Error occurred during document generation: ', err.stack);

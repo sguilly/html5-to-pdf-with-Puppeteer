@@ -20,18 +20,6 @@ export class Constants {
   };
 
   // ================================================================
-  // Authentication & Authorization constants
-  // ================================================================
-  static readonly authorizationHeader = 'Authorization';
-  static readonly authorizationHeaderObj = {
-    name: Constants.authorizationHeader,
-    required: true,
-    description: 'OAuth v2 access token',
-  };
-
-  static readonly token = 'token';
-
-  // ================================================================
   // Configuration constants
   // ================================================================
   static readonly configName: string = config.get('name');

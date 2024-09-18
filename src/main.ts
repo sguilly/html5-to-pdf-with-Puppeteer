@@ -15,10 +15,6 @@ async function bootstrap() {
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new HttpExceptionsLoggerFilter(logger, httpAdapter));
 
-  // FOR DEBUG ONLY
-  // Logs all the mongoose queries to check filters
-  // mongoose.set('debug', true);
-
   // Helmet middleware
   app.use(helmet());
   // Tracking ID
@@ -30,9 +26,6 @@ async function bootstrap() {
       .setTitle('S3PWeb / API to convert html5 to image or pdf')
       .setVersion('v1')
       .addServer('http://localhost:3080/v1', 'Development server')
-      // Set security
-      //.addApiKey({ name: 'token', type: 'apiKey' }, 'token')
-      //.addBearerAuth()
       .build();
 
     const document = SwaggerModule.createDocument(app, options);

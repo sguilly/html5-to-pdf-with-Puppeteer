@@ -20,6 +20,7 @@ export class GeneratePdfService {
 
   async onModuleInit(uuid: string): Promise<void> {
     try {
+      // Cluster init, it's used by puppeteer library to handle many files or document in same time
       this.cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
         maxConcurrency: 10,
@@ -29,6 +30,7 @@ export class GeneratePdfService {
         },
       });
 
+      // handle error on tasks execution
       this.cluster.on('taskerror', (err, data, willRetry) => {
         if (willRetry) {
           this.logger.warn({ uuid }, `Error while processing ${data}: ${err.message}. Retrying...`);
@@ -45,8 +47,9 @@ export class GeneratePdfService {
 
   async generate(params: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto): Promise<GenerateResponse> {
     try {
+      // setting task to execute by puppeteer
       const task = async ({ page, data }: { page: Page; data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto }) => {
-        await page.setDefaultNavigationTimeout(15000);
+        page.setDefaultNavigationTimeout(15000);
         await page.emulateTimezone('Europe/Paris');
 
         await ConvertTools.loadPage(page, data);
@@ -56,6 +59,7 @@ export class GeneratePdfService {
         let buffer: Buffer;
         let contentType: string;
 
+        // file generate based type ask (PDF or Image)
         switch (data.format) {
           case 'pdf':
             const pdfBuffer = await ConvertTools.generatePdf(page, data);
@@ -83,6 +87,7 @@ export class GeneratePdfService {
         };
       };
 
+      // execute tasks ,with Puppeteer using the cluster
       return await this.cluster.execute(params, task);
     } catch (error) {
       this.logger.error('Error generating content:', error);

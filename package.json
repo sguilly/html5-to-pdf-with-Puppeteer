@@ -1,10 +1,14 @@
 {
   "name": "html5-to-pdf-with-Puppeteer",
   "version": "0.0.2",
-  "description": "",
-  "author": "",
+  "description": "Convert HTML5 page to pdf or image with Puppeteer",
+  "author": "Stéphane GUILY & Steve KOUNGA -s3pweb",
   "private": true,
   "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/sguilly/html5-to-pdf-with-Puppeteer/issues"
+  },
+  "homepage": "https://github.com/sguilly/html5-to-pdf-with-Puppeteer#readme",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -16,7 +20,7 @@
     "test": "jest --maxWorkers=50%",
     "test:clear": "jest --clearCache",
     "test:watch": "jest --watch",
-    "test:ci": " jest --runInBand --config ./jest-full.json --reporters=default --reporters=jest-junit --coverage",
+    "test:ci": "jest --runInBand --config ./jest-full.json --reporters=default --reporters=jest-junit",
     "test:cov": "jest --maxWorkers=50% --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": " jest --config ./test/jest-e2e.json",
