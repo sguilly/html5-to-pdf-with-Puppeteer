@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { LoggingService, S3PLogger } from '@s3pweb/nestjs-common';
 import { Page } from 'puppeteer';
 import { Cluster } from 'puppeteer-cluster';
 import { ConvertTools } from '../utils/tools/convert-tool';
@@ -14,9 +15,11 @@ interface GenerateResponse {
 @Injectable()
 export class GeneratePdfService {
   private cluster: Cluster<any>;
-  readonly logger = new Logger(GeneratePdfService.name);
+  private readonly log: S3PLogger;
 
-  constructor() {}
+  constructor(logger: LoggingService) {
+    this.log = logger.getLogger(GeneratePdfService.name);
+  }
 
   async onModuleInit(uuid: string): Promise<void> {
     try {
@@ -33,22 +36,24 @@ export class GeneratePdfService {
       // handle error on tasks execution
       this.cluster.on('taskerror', (err, data, willRetry) => {
         if (willRetry) {
-          this.logger.warn({ uuid }, `Error while processing ${data}: ${err.message}. Retrying...`);
+          this.log.warn({ uuid }, `Error while processing ${data}: ${err.message}. Retrying...`);
         } else {
-          this.logger.error({ uuid }, `Failed to process ${data}: ${err.message}`);
+          this.log.error({ uuid }, `Failed to process ${data}: ${err.message}`);
         }
       });
     } catch (error) {
-      this.logger.error({ uuid }, 'Failed to initialize Puppeteer cluster', error.stack);
+      this.log.error({ uuid }, 'Failed to initialize Puppeteer cluster', error.stack);
       // Rethrow the error to ensure proper application behavior
       throw error;
     }
   }
 
-  async generate(params: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto): Promise<GenerateResponse> {
+  async generate(uuid: string, params: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto): Promise<GenerateResponse> {
     try {
       // setting task to execute by puppeteer
       const task = async ({ page, data }: { page: Page; data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto }) => {
+        this.log.info({ uuid }, 'set and execute task for cluster');
+
         page.setDefaultNavigationTimeout(15000);
         await page.emulateTimezone('Europe/Paris');
 
@@ -90,12 +95,13 @@ export class GeneratePdfService {
       // execute tasks ,with Puppeteer using the cluster
       return await this.cluster.execute(params, task);
     } catch (error) {
-      this.logger.error('Error generating content:', error);
+      this.log.error({ uuid }, 'Error generating content:', error);
       throw new Error('Failed to generate content');
     }
   }
 
-  async onModuleDestroy(): Promise<void> {
+  async onModuleDestroy(uuid: string): Promise<void> {
+    this.log.info({ uuid }, 'closing cluster');
     await this.cluster?.close();
   }
 }

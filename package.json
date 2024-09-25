@@ -44,7 +44,7 @@
     "@nestjs/mongoose": "10.0.6",
     "@nestjs/platform-express": "10.3.8",
     "@nestjs/swagger": "^7.4.0",
-    "@s3pweb/nestjs-common": "^2.4.0",
+    "@s3pweb/nestjs-common": "^2.4.2",
     "compression": "1.7.4",
     "config": "^3.3.12",
     "delay": "^6.0.0",
