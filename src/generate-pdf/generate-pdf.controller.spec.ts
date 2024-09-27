@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingService } from '@s3pweb/nestjs-common';
-import { ConvertTools } from '../utils/tools/convert-tool';
 import { GeneratePdfController } from './generate-pdf.controller';
 import { GeneratePdfService } from './generate-pdf.service';
 
@@ -8,19 +7,22 @@ describe('GeneratePdfController', () => {
   let controller: GeneratePdfController;
   //let service: GeneratePdfService;
 
+  const mockLoggingService = {
+    getLogger: jest.fn().mockReturnValue({
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    }),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GeneratePdfController],
       providers: [
         GeneratePdfService,
-        ConvertTools,
         {
           provide: LoggingService, // Mocker LoggingService
-          useValue: {
-            log: jest.fn(),
-            error: jest.fn(),
-            warn: jest.fn(),
-          },
+          useValue: mockLoggingService,
         },
       ],
     }).compile();
@@ -31,6 +33,5 @@ describe('GeneratePdfController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-    //expect(service).toBeDefined();
   });
 });

@@ -1,14 +1,14 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { AppModule } from '../src/app.module'; // Importez votre module principal
+import { AppModule } from '../src/app.module';
 
 describe('GeneratePdfController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule], // Importez votre module principal
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -26,8 +26,6 @@ describe('GeneratePdfController (e2e)', () => {
 
     expect(response.header['content-type']).toBe('application/pdf');
     expect(Buffer.isBuffer(response.body)).toBe(true);
-
-    //expect(response.body).toBeInstanceOf(Buffer); // Adjust according to your actual response
   });
 
   it('/v2/generate-pdf/url (POST) - should return 400 when format is missing', async () => {
@@ -50,8 +48,6 @@ describe('GeneratePdfController (e2e)', () => {
 
     expect(response.header['content-type']).toBe('image/jpg');
     expect(Buffer.isBuffer(response.body)).toBe(true);
-
-    //expect(response.body).toBeInstanceOf(Buffer); // Adjust according to your actual response
   });
 
   it('/v2/generate-pdf/html (POST) - should return 400 when format is invalid', async () => {

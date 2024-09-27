@@ -8,8 +8,6 @@ definitions:
   services:
     docker:
       memory: 2048
-  #caches:
-  #sonar: ~/.sonar/cache
 
 # Steps templating
 # @see https://support.atlassian.com/bitbucket-cloud/docs/write-a-pipe-for-bitbucket-pipelines/#Step-9---Set-up-CI-CD-to-automate-testing-and-updates
@@ -107,9 +105,6 @@ pipelines:
             - npm run release:pipeline:prod
             - npm run compile:pipeline:prod
             - git push --follow-tags
-            # Uncomment the following lines when production is ready
-            #- curl --fail -X POST ${WEBHOOK_PROD}
-            #- npm run release:message:prod -- -w ${DISCORD_WEBHOOK_PROD}
 
   custom:
     npm-audit:

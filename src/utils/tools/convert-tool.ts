@@ -10,7 +10,6 @@ export class ConvertTools {
    * @param page - The Puppeteer Page instance where the content will be loaded.
    * @param data - Contains either a URL or HTML content, along with optional settings like waitFor.
    */
-
   static async loadPage(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
     if ('url' in data) {
       // Navigate to the provided URL
@@ -34,7 +33,6 @@ export class ConvertTools {
    *
    * @param page - The Puppeteer Page instance where images need to be loaded.
    */
-
   static async waitForImages(page: Page) {
     await page.evaluate(async () => {
       const selectors = Array.from(document.querySelectorAll('img'));
@@ -57,7 +55,6 @@ export class ConvertTools {
    *
    * @param page - The Puppeteer Page instance whose dimensions need to be adjusted.
    */
-
   static async setPageDimensions(page: Page) {
     // Get the body scroll width and height
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -73,7 +70,6 @@ export class ConvertTools {
    * @param data - Contains PDF settings such as printBackground and pageNumber.
    * @returns The generated PDF buffer.
    */
-
   static async generatePdf(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
     return page.pdf({
       format: 'A4',
@@ -95,7 +91,6 @@ export class ConvertTools {
    * @param page - The Puppeteer Page instance from which the screenshot will be generated.
    * @returns The generated image buffer.
    */
-
   static async generateImage(page: Page) {
     return page.screenshot(); // Take a screenshot of the page
   }

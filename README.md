@@ -8,8 +8,9 @@ this project is about to Convert HTML5 page to pdf or image with Puppeteer
 
 - [Requirements](#requirements)
 - [Started](#started)
-- [Install](#install)
+- [Install](#install-and-run)
 - [Test](#test)
+- [Swagger](#swagger-doc)
 
 ## requirements
 
@@ -31,7 +32,7 @@ Before you start, make sure you have the following items installed on your machi
 
 1. 1. Configuration
 
-### Install
+### Install and run
 
 npm install
 
@@ -40,3 +41,7 @@ npm run start:dev
 ## Test
 
 npm run test
+
+## Swagger Doc
+
+Url: <http://localhost:3080/explorer#/>

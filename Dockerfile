@@ -1,5 +1,5 @@
 # Build dist
-FROM node:20.14.0-slim AS dist
+FROM node:20.17.0-slim AS dist
 
 WORKDIR /tmp/
 
@@ -12,7 +12,7 @@ COPY src/ src/
 RUN npm run build
 
 # Build node_modules
-FROM node:20.14.0-slim AS node_modules
+FROM node:20.17.0-slim AS node_modules
 
 WORKDIR /tmp/
 
@@ -21,7 +21,7 @@ COPY package.json package-lock.json ./
 RUN npm pkg delete scripts.prepare && npm install --omit=dev
 
 # Copy sources
-FROM node:20.14.0-slim
+FROM node:20.17.0-slim
 
 LABEL maintainer="S3PWeb <hotline@s3pweb.com>"
 
@@ -48,6 +48,9 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Puppeteer
+RUN npm install puppeteer
+
 # Install dumb-init
 RUN wget -O /usr/bin/dumb-init https://github.com/dumb-init/dumb-init/releases/download/v1.2.8/dumb-init_1.2.8_amd64 \
     && chmod +x /usr/bin/dumb-init
@@ -68,4 +71,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s \
   CMD node /usr/local/app/healthcheck.js
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
