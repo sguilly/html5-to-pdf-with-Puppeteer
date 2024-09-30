@@ -132,6 +132,3 @@ out
 # jest-junit reporter
 test-results
 test-report.xml
-
-# Inen file
-.env 

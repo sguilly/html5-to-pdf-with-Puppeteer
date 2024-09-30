@@ -8,11 +8,24 @@
   "bugs": {
     "url": "https://github.com/sguilly/html5-to-pdf-with-Puppeteer/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s3pweb/html5-to-pdf-with-Puppeteer.git"
+  },
+  "keywords": [
+    "html",
+    "html5",
+    "pdf",
+    "image",
+    "puppeteer"
+  ],
   "homepage": "https://github.com/sguilly/html5-to-pdf-with-Puppeteer#readme",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
+    "start:bunyan": "nest start --watch | bunyan",
+    "start:bunyan-short": "npm run start:bunyan -- -o short",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
