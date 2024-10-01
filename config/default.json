@@ -29,5 +29,6 @@
   },
   "compression": {
     "enabled": false
-  }
+  },
+  "maxConcurrency": 10
 }

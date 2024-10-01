@@ -24,7 +24,7 @@ async function bootstrap() {
     // Swagger configuration
     const options = new DocumentBuilder()
       .setTitle('S3PWeb / API to convert html5 to image or pdf')
-      .setVersion('v1')
+      .setVersion('v2')
       .addServer('http://localhost:3080/v1', 'Development server')
       .build();
 

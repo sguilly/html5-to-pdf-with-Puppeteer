@@ -22,7 +22,6 @@ import { RequestTrackerMiddleware } from './utils/middlewares/request-tracker.mi
     PromModule,
     GeneratePdfModule,
   ],
-  controllers: [],
   providers: [
     {
       // For every single request coming to the application, apply the validation pipe

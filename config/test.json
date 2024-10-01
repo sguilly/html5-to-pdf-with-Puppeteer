@@ -1,6 +1,6 @@
 {
   "name": "s3pweb-html5-to-pdf-with-Puppeteer-api-TEST",
-  "testMode": false,
+  "testMode": true,
   "logger": {
     "source": true,
     "console": {
@@ -29,5 +29,6 @@
   },
   "compression": {
     "enabled": false
-  }
+  },
+  "maxConcurrency": 3
 }

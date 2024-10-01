@@ -26,7 +26,6 @@ export class ConvertTools {
       await page.waitForSelector('#' + data.waitFor, { visible: true });
     }
   }
-
   /**
    * Waits for all images on the page to finish loading before proceeding.
    * It checks each image's load status and resolves or throws an error if an image fails to load.
@@ -48,7 +47,6 @@ export class ConvertTools {
       );
     });
   }
-
   /**
    * Dynamically sets the page dimensions based on the content's scroll width and height.
    * This ensures that the entire content is visible before generating the PDF or screenshot.
@@ -62,7 +60,6 @@ export class ConvertTools {
     // Set the viewport to match the body dimensions
     await page.setViewport({ width: bodyWidth, height: bodyHeight });
   }
-
   /**
    * Generates a PDF from the current page content, with optional print settings such as margins and page numbers.
    *
@@ -84,7 +81,6 @@ export class ConvertTools {
         '</div></div>',
     });
   }
-
   /**
    * Generates a screenshot of the current page content.
    *

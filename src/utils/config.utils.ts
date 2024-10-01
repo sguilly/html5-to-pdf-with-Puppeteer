@@ -8,6 +8,7 @@ export class ConfigUtils {
         name: config.get('name'),
         logger: config.get('logger'),
       },
+      maxConcurrency: config.get<number>('maxConcurrency'),
     };
   }
 }

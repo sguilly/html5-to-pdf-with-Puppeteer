@@ -38,18 +38,22 @@ services:
           memory: 1000M
 
       labels:
-        # Traefik 2
+        # Traefik 3
         traefik.enable: 'true'
         traefik.docker.network: proxy
         traefik.http.services.html5-to-pdf-with-Puppeteer.loadbalancer.server.port: 3080
-        # Traefik 2 - external
+        # Traefik 3 - external
         traefik.http.routers.html5-to-pdf-with-Puppeteer.rule: Host("html5-to-pdf-with-puppeteer.s3pweb.io")
         traefik.http.routers.html5-to-pdf-with-Puppeteer.tls: 'true'
-        traefik.http.routers.html5-to-pdf-with-Puppeteer.middlewares: authorization-100-ratelimit@docker
-        # Traefik 2 - internal
+        traefik.http.routers.html5-to-pdf-with-Puppeteer.entryPoints: websecure
+        # traefik.http.routers.html5-to-pdf-with-Puppeteer.ruleSyntax: v3
+        traefik.http.routers.html5-to-pdf-with-Puppeteer.middlewares: traefik-bureau-ipwhitelist, token-100-ratelimit
+        # Traefik 3 - internal
         traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.rule: Host("html5-to-pdf-with-puppeteer.s3pweb.io") && PathPrefix("/metrics")
         traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.tls: 'true'
-        traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.middlewares: traefik-localhost-ipwhitelist@docker
+        traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.entryPoints: websecure
+        # traefik.http.routers.pfm-depannage-api-internal.ruleSyntax: v3
+        traefik.http.routers.html5-to-pdf-with-Puppeteer-internal.middlewares: traefik-localhost-ipwhitelist, token-100-ratelimit
         # Prometheus Swarm
         prometheus-job: html5-to-pdf-with-Puppeteer
         prometheus-port: 3080

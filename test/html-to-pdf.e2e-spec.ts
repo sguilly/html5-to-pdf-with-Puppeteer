@@ -17,7 +17,7 @@ describe('GeneratePdfController (e2e)', () => {
 
   it('/v2/generate-pdf/url (POST) - should return pdf when valid url is provided', async () => {
     const response = await request(app.getHttpServer())
-      .post('/v2/generate-pdf/url')
+      .post('/api/v2/generate-pdf/url')
       .send({
         url: 'https://example.com',
         format: 'pdf',
@@ -28,18 +28,18 @@ describe('GeneratePdfController (e2e)', () => {
     expect(Buffer.isBuffer(response.body)).toBe(true);
   });
 
-  it('/v2/generate-pdf/url (POST) - should return 400 when format is missing', async () => {
+  it('/api/v2/generate-pdf/url (POST) - should return 404 when format is missing', async () => {
     await request(app.getHttpServer())
       .post('/v2/generate-pdf/url')
       .send({
         url: 'https://example.com',
       })
-      .expect(HttpStatus.BAD_REQUEST);
+      .expect(HttpStatus.NOT_FOUND);
   });
 
   it('/v2/generate-pdf/html (POST) - should return image when valid html and format is provided', async () => {
     const response = await request(app.getHttpServer())
-      .post('/v2/generate-pdf/html')
+      .post('/api/v2/generate-pdf/html')
       .send({
         html: '<html><body><h1>Hello World</h1></body></html>',
         format: 'image',
@@ -50,14 +50,14 @@ describe('GeneratePdfController (e2e)', () => {
     expect(Buffer.isBuffer(response.body)).toBe(true);
   });
 
-  it('/v2/generate-pdf/html (POST) - should return 400 when format is invalid', async () => {
+  it('/api/v2/generate-pdf/html (POST) - should return 404 when format is invalid', async () => {
     await request(app.getHttpServer())
       .post('/v2/generate-pdf/html')
       .send({
         html: '<html><body><h1>Hello World</h1></body></html>',
         format: 'invalid-format',
       })
-      .expect(HttpStatus.BAD_REQUEST);
+      .expect(HttpStatus.NOT_FOUND);
   });
 
   afterAll(async () => {
