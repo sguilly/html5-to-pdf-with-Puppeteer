@@ -1,6 +1,6 @@
 {
   "name": "html5-to-pdf-with-Puppeteer",
-  "version": "0.0.2",
+  "version": "2.0.0",
   "description": "Convert HTML5 page to pdf or image with Puppeteer",
   "author": "Stéphane GUILY & Steve KOUNGA -s3pweb",
   "private": false,

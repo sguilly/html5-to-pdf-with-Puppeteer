@@ -118,6 +118,30 @@ describe('GeneratePdfService', () => {
     };
 
     const uuid = 'generatePdfService';
+    const mockBuffer = Buffer.from('mock pdf content');
+    const mockResult = {
+      code: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Length': mockBuffer.length,
+      },
+      buffer: mockBuffer,
+    };
+
+    it('should successfully generate PDF', async () => {
+      await service.onModuleInit(uuid);
+      cluster.execute.mockResolvedValueOnce(mockResult);
+
+      const result = await service.generate(uuid, params);
+
+      expect(result.code).toBe(200);
+      expect(result.headers['Content-Type']).toBe('application/pdf');
+      expect(result.buffer).toEqual(mockBuffer);
+      expect(result.headers['Content-Length']).toBe(mockBuffer.length);
+
+      // check that cluster has executed task
+      expect(cluster.execute).toHaveBeenCalledWith(params, expect.any(Function));
+    });
 
     it('should handle errors during task execution', async () => {
       //Initialize module and simulates cluster initialization in onModuleInit after fail in tst before

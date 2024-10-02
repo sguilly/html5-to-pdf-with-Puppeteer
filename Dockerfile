@@ -25,7 +25,9 @@ FROM node:20.17.0-slim
 
 LABEL maintainer="S3PWeb <hotline@s3pweb.com>"
 
-# Install dependencies for Puppeteer
+# Install dependencies for Puppeteer 
+# going from documentation : https://pptr.dev/troubleshooting, 
+# we just took packages we needed because we are not using google chrome navigator to convert so we dont need to install it 
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -71,4 +73,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s \
   CMD node /usr/local/app/healthcheck.js
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]

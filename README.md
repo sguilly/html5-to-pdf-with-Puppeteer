@@ -2,7 +2,7 @@
 
 ## Description
 
-this project is about to Convert HTML5 page to pdf or image with Puppeteer
+this project is about Converting HTML5 page to pdf or image with Puppeteer
 
 ## Table of contents
 

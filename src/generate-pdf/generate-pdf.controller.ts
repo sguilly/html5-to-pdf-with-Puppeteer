@@ -37,12 +37,12 @@ export class GeneratePdfController {
     @Res() res: Response,
     @Headers(correlationId) uuid: string,
   ): Promise<void> {
-    this.logRequest(uuid, '/api/v2/generate-pdf/url', body);
+    this.logRequest(uuid, 'api/v2/generate-pdf/url', body);
     const { url, format, waitFor } = body;
 
     try {
       const response = await this.generatePdfService.generate(uuid, { url, format, waitFor });
-      this.logRequest(uuid, '/api/v2/generate-pdf/url', body, response);
+      this.logRequest(uuid, 'api/v2/generate-pdf/url', body, response);
       if (response.headers) {
         res.set(response.headers);
       }
@@ -61,9 +61,9 @@ export class GeneratePdfController {
     @Headers(correlationId) uuid: string,
   ): Promise<void> {
     try {
-      this.logRequest(uuid, '/api/v2/generate-pdf/html', body);
+      this.logRequest(uuid, 'api/v2/generate-pdf/html', body);
       const response = await this.generatePdfService.generate(uuid, body);
-      this.logRequest(uuid, '/api/v2/generate-pdf/html', response);
+      this.logRequest(uuid, 'api/v2/generate-pdf/html', response);
 
       if (response.headers) {
         res.set(response.headers);

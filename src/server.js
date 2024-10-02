@@ -1,29 +1,29 @@
-var debug = require("debug")("html5-to-pdf");
+var debug = require('debug')('html5-to-pdf');
 
-const express = require("express"),
-  bodyParser = require("body-parser");
+const express = require('express'),
+  bodyParser = require('body-parser');
 
 const app = express();
-app.use(bodyParser.json({ limit: "50mb", extended: true }));
+app.use(bodyParser.json({ limit: '50mb', extended: true }));
 
-const { Cluster } = require("puppeteer-cluster");
-const delay = require("delay");
+const { Cluster } = require('puppeteer-cluster');
+const delay = require('delay');
 
-const version = "v1";
+const version = 'v1';
 
-const swaggerJSDoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const swaggerDefinition = {
-  openapi: "3.0.0",
+  openapi: '3.0.0',
   info: {
-    title: "API to convert html5 to image or pdf",
-    version: "1.0.0",
+    title: 'API to convert html5 to image or pdf',
+    version: '2.0.0',
   },
   servers: [
     {
       url: `http://localhost:3000/${version}`,
-      description: "Development server",
+      description: 'Development server',
     },
   ],
 };
@@ -31,7 +31,7 @@ const swaggerDefinition = {
 const options = {
   swaggerDefinition,
   // Paths to files containing OpenAPI definitions
-  apis: ["./src/*.js"],
+  apis: ['./src/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
@@ -44,20 +44,18 @@ const swaggerSpec = swaggerJSDoc(options);
       headless: true,
       args: [
         // Required for Docker version of Puppeteer
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
         // This will write shared memory files into /tmp instead of /dev/shm,
         // because Docker’s default for /dev/shm is 64MB
-        "--disable-dev-shm-usage",
+        '--disable-dev-shm-usage',
       ],
     },
   });
 
-  cluster.on("taskerror", (err, data, willRetry) => {
+  cluster.on('taskerror', (err, data, willRetry) => {
     if (willRetry) {
-      console.warn(
-        `Encountered an error while crawling ${data}. ${err.message}\nThis job will be retried`
-      );
+      console.warn(`Encountered an error while crawling ${data}. ${err.message}\nThis job will be retried`);
     } else {
       console.error(`Failed to crawl ${data}: ${err.message}`);
     }
@@ -66,30 +64,30 @@ const swaggerSpec = swaggerJSDoc(options);
   const generate = (params) => {
     const task = async ({ page, data }) => {
       await page.setDefaultNavigationTimeout(15000);
-      await page.emulateTimezone("Europe/Paris");
+      await page.emulateTimezone('Europe/Paris');
 
       if (data.url) {
         await page.goto(data.url);
       } else if (data.html) {
-        await page.setContent(data.html, { waitUntil: "networkidle0" });
+        await page.setContent(data.html, { waitUntil: 'networkidle0' });
       } else {
         return { code: 400 };
       }
 
       if (data.waitFor) {
-        await page.waitForSelector("#" + data.waitFor, { visible: true });
+        await page.waitForSelector('#' + data.waitFor, { visible: true });
       }
       // wait all img
       await page.evaluate(async () => {
-        const selectors = Array.from(document.querySelectorAll("img"));
+        const selectors = Array.from(document.querySelectorAll('img'));
         await Promise.all(
           selectors.map((img) => {
             if (img.complete) return;
             return new Promise((resolve, reject) => {
-              img.addEventListener("load", resolve);
-              img.addEventListener("error", reject);
+              img.addEventListener('load', resolve);
+              img.addEventListener('error', reject);
             });
-          })
+          }),
         );
       });
       // size for screenshot
@@ -104,38 +102,36 @@ const swaggerSpec = swaggerJSDoc(options);
 
       let buffer, contentType;
       switch (data.format) {
-        case "pdf":
+        case 'pdf':
           buffer = await page.pdf({
-            format: "A4",
+            format: 'A4',
             printBackground: data.printBackground,
-            margin: data.pageNumber
-              ? { top: 30, right: 30, bottom: 60, left: 30 }
-              : {},
+            margin: data.pageNumber ? { top: 30, right: 30, bottom: 60, left: 30 } : {},
             displayHeaderFooter: data.pageNumber,
-            headerTemplate: "<div></div>",
+            headerTemplate: '<div></div>',
             footerTemplate: `<div style="width: 100%; font-size: 9px;
                         padding: 5px 5px 0; color: black; position: relative;">
                         <div style="position: absolute; right: 50%; bottom: 15px;"><span class="pageNumber"></span>/<span class="totalPages"></span></div></div>`,
           });
-          contentType = "application/pdf";
+          contentType = 'application/pdf';
           break;
 
-        case "image":
+        case 'image':
           buffer = await page.screenshot();
-          contentType = "image/jpg";
+          contentType = 'image/jpg';
           break;
       }
 
       let response = {
         code: 200,
         headers: {
-          "Content-Type": contentType,
-          "Content-Length": buffer.length,
+          'Content-Type': contentType,
+          'Content-Length': buffer.length,
         },
         buffer: buffer,
       };
 
-      debug("done");
+      debug('done');
 
       return response;
     };
@@ -171,9 +167,7 @@ const swaggerSpec = swaggerJSDoc(options);
    */
   app.get(`/${version}/generate`, async function (req, res) {
     if (!req.query.url || !req.query.format) {
-      return res.end(
-        "Please specify a format and a url like this: ?format=image&url=https://example.com"
-      );
+      return res.end('Please specify a format and a url like this: ?format=image&url=https://example.com');
     }
     try {
       let response = await generate(req.query);
@@ -181,7 +175,7 @@ const swaggerSpec = swaggerJSDoc(options);
       res.writeHead(response.code, response.headers);
       res.end(response.buffer);
     } catch (err) {
-      res.end("Error: " + err);
+      res.end('Error: ' + err);
     }
   });
 
@@ -213,20 +207,20 @@ const swaggerSpec = swaggerJSDoc(options);
    *
    */
   app.post(`/${version}/generate`, async function (req, res) {
-    debug("generate", req.body);
+    debug('generate', req.body);
     try {
       let response = await generate(req.body);
 
       res.writeHead(response.code, response.headers);
       res.end(response.buffer);
     } catch (err) {
-      res.end("Error: " + err);
+      res.end('Error: ' + err);
     }
   });
 
-  app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   app.listen(80, function () {
-    console.log("HTML5 to image or pdf server listening on port 80.");
+    console.log('HTML5 to image or pdf server listening on port 80.');
   });
 })();
