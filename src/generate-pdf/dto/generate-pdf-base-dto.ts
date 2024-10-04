@@ -5,11 +5,11 @@ export class GeneratePdfBaseDto {
   @ApiProperty({
     description: 'The format of the document to generate',
     example: 'pdf',
-    enum: ['image', 'pdf'],
+    enum: ['image', 'IMAGE', 'pdf', 'PDF'],
   })
   @IsNotEmpty({ message: 'Format must not be empty' })
   @IsString({ message: 'Format must be a string' })
-  @IsIn(['image', 'pdf'], { message: 'Format must be either image or pdf' })
+  @IsIn(['image', 'IMAGE', 'pdf', 'PDF'], { message: 'Format must be either image or pdf' })
   format: string;
 
   @ApiPropertyOptional({

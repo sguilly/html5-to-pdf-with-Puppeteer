@@ -5,20 +5,17 @@ import { LoggingService, S3PLogger } from '@s3pweb/nestjs-common';
 import { Page } from 'puppeteer';
 import { Cluster } from 'puppeteer-cluster';
 import { ConvertTools } from '../utils/tools/convert-tool';
+import { ClusterStatus } from '../utils/types/cluster-status.type';
+import { GenerateResponse } from '../utils/types/generate-response.type';
 import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
 import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
 
-interface GenerateResponse {
-  headers: Record<string, string>;
-  code: number;
-  buffer: Buffer;
-}
 @Injectable()
 export class GeneratePdfService {
   private cluster: Cluster<GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto>;
   private readonly log: S3PLogger;
-  private status: 'initializing' | 'active' | 'closing' | 'closed' = 'initializing'; // cluster state
-  private maxRetries: number = 2;
+  private status: ClusterStatus = 'initializing'; // cluster state
+  private readonly maxRetries: number = 2;
 
   constructor(
     logger: LoggingService,
@@ -50,18 +47,21 @@ export class GeneratePdfService {
       this.cluster.on('taskerror', (err, data, willRetry) => {
         const attemptCount = data.attempts || 0;
 
+        // set retry method from Puppeteer -cluster @see https://www.npmjs.com/package/puppeteer-cluster/v/0.5.4
         if (willRetry) {
           if (attemptCount < this.maxRetries) {
             data.attempts = attemptCount + 1;
             this.log.warn(
               { uuid },
-              `Error while processing ${data}: ${err.message}. Retrying... (Attempt ${data.attempts})`,
+              `Error while processing ${JSON.stringify(data)}: ${err.message}. Retrying... (Attempt ${data.attempts})`,
             );
           } else {
-            this.log.error({ uuid }, `Exceeded maximum retries for ${data}: ${err.message}`);
+            this.log.error({ uuid }, `Exceeded maximum retries for ${JSON.stringify(data)}: ${err.message}`);
+            this.status = 'closed';
           }
         } else {
-          this.log.error({ uuid }, `Failed to process ${data}: ${err.message}`);
+          this.log.error({ uuid }, `Failed to process ${JSON.stringify(data)}: ${err.message}`);
+          this.status = 'closed';
         }
       });
     } catch (error) {
@@ -144,12 +144,16 @@ export class GeneratePdfService {
     page: Page,
     data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto,
   ): Promise<{ buffer: Buffer; contentType: string }> {
-    switch (data.format) {
+    if (!data.format) {
+      throw new BadRequestException('Format is required.');
+    }
+    const format = data.format.toLowerCase();
+    switch (format) {
       case 'pdf':
-        return await this.generatePdfContent(page, data);
+        return this.generatePdfContent(page, data);
 
       case 'image':
-        return await this.generateImageContent(page);
+        return this.generateImageContent(page);
 
       default:
         throw new BadRequestException('Unsupported format. Please use either pdf or image.');

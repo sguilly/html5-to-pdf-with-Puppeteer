@@ -30,5 +30,7 @@
   "compression": {
     "enabled": false
   },
-  "maxConcurrency": 10
+  "puppeteerFileGeneration": {
+    "maxConcurrency": 10
+  }
 }

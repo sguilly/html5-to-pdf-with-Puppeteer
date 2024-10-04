@@ -1,8 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { LoggingService } from '@s3pweb/nestjs-common';
 import { Cluster } from 'puppeteer-cluster';
+//import { getSpecProvidersImport } from '../../test/util/providers.utils';
+//import { configMock } from '../utils/mocks/config.mock.ts';
+import { ConfigService } from '@nestjs/config';
+import { LoggingService } from '@s3pweb/nestjs-common';
+import { getSpecProvidersImport } from '../../test/util/providers.utils';
+import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
 import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
 import { GeneratePdfService } from './generate-pdf.service';
 
@@ -15,44 +19,30 @@ jest.mock('puppeteer-cluster', () => ({
 
 describe('GeneratePdfService', () => {
   let service: GeneratePdfService;
-  let cluster: any;
-
-  const mockLoggingService = {
-    getLogger: jest.fn().mockReturnValue({
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    }),
-  };
-  const mockConfigService = {
-    get: jest.fn((key: string) => {
-      if (key === 'maxConcurrency') {
-        return 3;
-      }
-      return null; // Return null if key different to maxConcurrency
-    }),
-  };
+  let cluster: jest.Mocked<Cluster<GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto>>;
+  let mockConfigService: any;
+  let mockLoggingService: any;
 
   beforeEach(async () => {
     cluster = {
       execute: jest.fn(),
       on: jest.fn(),
       close: jest.fn(),
-    };
+    } as unknown as jest.Mocked<Cluster<GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto>>;
 
     // Simulate Cluster.launch response
     (Cluster.launch as jest.Mock).mockResolvedValue(cluster);
 
+    // mock providers using the utility function with service context
+    const mockProviders = getSpecProvidersImport(false);
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ConfigService,
-        GeneratePdfService,
-        { provide: LoggingService, useValue: mockLoggingService },
-        { provide: ConfigService, useValue: mockConfigService },
-      ],
+      providers: [GeneratePdfService, ...mockProviders],
     }).compile();
 
     service = module.get<GeneratePdfService>(GeneratePdfService);
+    mockConfigService = module.get<ConfigService>(ConfigService); // Recover the exact instance used by the module
+    mockLoggingService = module.get<LoggingService>(LoggingService);
   });
 
   afterEach(() => {
@@ -65,11 +55,13 @@ describe('GeneratePdfService', () => {
     it('should initialize the cluster and set status to active', async () => {
       // Initialize module and simulates cluster initialization in onModuleInit
       await service.onModuleInit(uuid);
+      // get maxConcurrency from mockConfigService
+      const maxConcurrency = mockConfigService.get('puppeteerFileGeneration').maxConcurrency;
 
       // Check that Cluster.launch was called with appropriate options
       expect(Cluster.launch).toHaveBeenCalledWith({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
-        maxConcurrency: 3, // Based on the mockConfigService
+        maxConcurrency: maxConcurrency, // Based on the mockConfigService
         puppeteerOptions: {
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
@@ -78,6 +70,7 @@ describe('GeneratePdfService', () => {
 
       // Check that service status is updated to active
       expect(service['status']).toBe('active');
+
       expect(mockLoggingService.getLogger().info).toHaveBeenCalledWith({ uuid }, 'Cluster initialized successfully');
     });
 
@@ -182,6 +175,59 @@ describe('GeneratePdfService', () => {
       expect(service['status']).toBe('initializing');
       // Check if log was recorded
       expect(loggerWarnSpy).toHaveBeenCalledWith({ uuid }, 'Cluster instance was not initialized');
+    });
+  });
+
+  // Tests to check cluster events
+  describe('cluster events', () => {
+    const uuid = 'cluster-event-uuid';
+
+    it('should handle task error events and maintain cluster status', async () => {
+      await service.onModuleInit(uuid);
+      const mockError = new Error('Task execution error');
+      const mockData = { task: 'someTask', attempts: 1 };
+
+      const errorHandler = cluster.on.mock.calls.find((call) => call[0] === 'taskerror')[1]; // get error handller
+      errorHandler(mockError, mockData, true); // mock error with retry
+
+      expect(mockLoggingService.getLogger().warn).toHaveBeenCalledWith(
+        { uuid },
+        expect.stringContaining('Retrying... (Attempt 2)'),
+      );
+      // check cluster state
+      expect(service['status']).toBe('active');
+    });
+
+    it('should log an error and set status to closed on non-retriable task error', async () => {
+      await service.onModuleInit(uuid);
+      const mockError = new Error('Task execution error');
+      const mockData = { task: 'someTask', attempts: 3 }; // If maximum retry has been attempted
+
+      const errorHandler = cluster.on.mock.calls.find((call) => call[0] === 'taskerror')[1];
+      errorHandler(mockError, mockData, false);
+
+      expect(mockLoggingService.getLogger().error).toHaveBeenCalledWith(
+        { uuid },
+        expect.stringContaining(`Failed to process ${JSON.stringify(mockData)}: ${mockError.message}`),
+      );
+
+      expect(service['status']).toBe('closed');
+    });
+
+    it('should keep status as closed after multiple errors', async () => {
+      await service.onModuleInit(uuid);
+      const mockError = new Error('Repeated task execution error');
+      const mockData = { task: 'someTask', attempts: 3 };
+
+      const errorHandler = cluster.on.mock.calls.find((call) => call[0] === 'taskerror')[1];
+      errorHandler(mockError, mockData, false); // Mock error without retry
+
+      expect(mockLoggingService.getLogger().error).toHaveBeenCalledWith(
+        { uuid },
+        expect.stringContaining(`Failed to process ${JSON.stringify(mockData)}: ${mockError.message}`),
+      );
+
+      expect(service['status']).toBe('closed');
     });
   });
 });

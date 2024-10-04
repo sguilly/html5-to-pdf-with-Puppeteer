@@ -1,9 +1,9 @@
 const exec = require('child_process').exec;
 
 //defined Regex with comment containing link to regex101
-export const regexProdVersion = /^\d+\.\d+\.\d+$/; // https://regex101.com/r/rmmhOx/1
-export const regexPreprodVersion = /^\d+\.\d+\.\d+-[a-zA-Z0-9]+$/; // https://regex101.com/r/70tA3X/1
-export const regexSonarVersion = /^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$/;  //https://regex101.com/r/BtreAE/1
+export const regexProdVersion = /^\d+\.\d+\.\d+$/; //  https://regex101.com/r/OnBY8t/5
+export const regexPreprodVersion = /^\d+\.\d+\.\d+-[a-zA-Z0-9]+$/; // https://regex101.com/r/OnBY8t/6
+export const regexSonarVersion = /^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$/;  // https://regex101.com/r/OnBY8t/4
 
 //Function to read version 
 module.exports.readVersion = function (contents) {

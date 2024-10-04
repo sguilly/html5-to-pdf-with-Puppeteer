@@ -10,6 +10,7 @@ export class ConvertTools {
    * @param page - The Puppeteer Page instance where the content will be loaded.
    * @param data - Contains either a URL or HTML content, along with optional settings like waitFor.
    */
+
   static async loadPage(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
     if ('url' in data) {
       // Navigate to the provided URL
@@ -26,12 +27,14 @@ export class ConvertTools {
       await page.waitForSelector('#' + data.waitFor, { visible: true });
     }
   }
+
   /**
    * Waits for all images on the page to finish loading before proceeding.
    * It checks each image's load status and resolves or throws an error if an image fails to load.
    *
    * @param page - The Puppeteer Page instance where images need to be loaded.
    */
+
   static async waitForImages(page: Page) {
     await page.evaluate(async () => {
       const selectors = Array.from(document.querySelectorAll('img'));
@@ -46,7 +49,9 @@ export class ConvertTools {
         }),
       );
     });
+    return true;
   }
+
   /**
    * Dynamically sets the page dimensions based on the content's scroll width and height.
    * This ensures that the entire content is visible before generating the PDF or screenshot.
@@ -60,6 +65,7 @@ export class ConvertTools {
     // Set the viewport to match the body dimensions
     await page.setViewport({ width: bodyWidth, height: bodyHeight });
   }
+
   /**
    * Generates a PDF from the current page content, with optional print settings such as margins and page numbers.
    *
@@ -67,6 +73,7 @@ export class ConvertTools {
    * @param data - Contains PDF settings such as printBackground and pageNumber.
    * @returns The generated PDF buffer.
    */
+
   static async generatePdf(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
     return page.pdf({
       format: 'A4',
@@ -81,12 +88,14 @@ export class ConvertTools {
         '</div></div>',
     });
   }
+
   /**
    * Generates a screenshot of the current page content.
    *
    * @param page - The Puppeteer Page instance from which the screenshot will be generated.
    * @returns The generated image buffer.
    */
+
   static async generateImage(page: Page) {
     return page.screenshot(); // Take a screenshot of the page
   }

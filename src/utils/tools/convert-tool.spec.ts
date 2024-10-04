@@ -3,8 +3,18 @@ import { GeneratePdfFromHtmlDto } from '../../generate-pdf/dto/generate-pdf-html
 import { GeneratePdfFromUrlDto } from '../../generate-pdf/dto/generate-pdf-url-dto';
 import { ConvertTools } from './convert-tool';
 
+interface MockedPage extends Partial<Page> {
+  goto: jest.Mock;
+  setContent: jest.Mock;
+  waitForSelector: jest.Mock;
+  evaluate: jest.Mock;
+  setViewport: jest.Mock;
+  pdf: jest.Mock;
+  screenshot: jest.Mock;
+}
+
 describe('ConvertTools', () => {
-  let pageMock: Partial<Page>;
+  let pageMock: MockedPage;
 
   beforeEach(() => {
     pageMock = {
@@ -20,30 +30,33 @@ describe('ConvertTools', () => {
 
   it('should load a URL if provided', async () => {
     const data: GeneratePdfFromUrlDto = { url: 'http://example.com', format: 'pdf' };
-    await ConvertTools.loadPage(pageMock as Page, data);
+    await ConvertTools.loadPage(pageMock as unknown as Page, data);
     expect(pageMock.goto).toHaveBeenCalledWith('http://example.com');
   });
 
   it('should load HTML content if provided', async () => {
     const data: GeneratePdfFromHtmlDto = { html: '<html></html>', format: 'pdf' };
-    await ConvertTools.loadPage(pageMock as Page, data);
+    await ConvertTools.loadPage(pageMock as unknown as Page, data);
     expect(pageMock.setContent).toHaveBeenCalledWith('<html></html>', { waitUntil: 'networkidle0' });
   });
 
   it('should throw an error if neither url nor html is provided', async () => {
     const data = { format: 'pdf' } as GeneratePdfFromUrlDto;
-    await expect(ConvertTools.loadPage(pageMock as Page, data)).rejects.toThrow('Either url or html must be provided');
+    await expect(ConvertTools.loadPage(pageMock as unknown as Page, data)).rejects.toThrow(
+      'Either url or html must be provided',
+    );
   });
 
   it('should wait for an image to load', async () => {
-    pageMock.evaluate = jest.fn().mockResolvedValue(true);
-    await ConvertTools.waitForImages(pageMock as Page);
+    pageMock.evaluate.mockResolvedValue(true);
+    const result = await ConvertTools.waitForImages(pageMock as unknown as Page);
     expect(pageMock.evaluate).toHaveBeenCalled();
+    expect(result).toBe(true);
   });
 
   it('should set the page dimensions', async () => {
     pageMock.evaluate = jest.fn().mockResolvedValueOnce(800).mockResolvedValueOnce(600);
-    await ConvertTools.setPageDimensions(pageMock as Page);
+    await ConvertTools.setPageDimensions(pageMock as unknown as Page);
     expect(pageMock.setViewport).toHaveBeenCalledWith({ width: 800, height: 600 });
   });
 
@@ -54,7 +67,7 @@ describe('ConvertTools', () => {
       printBackground: true,
       pageNumber: true,
     };
-    await ConvertTools.generatePdf(pageMock as Page, data);
+    await ConvertTools.generatePdf(pageMock as unknown as Page, data);
     expect(pageMock.pdf).toHaveBeenCalledWith({
       format: 'A4',
       printBackground: true,
@@ -70,7 +83,7 @@ describe('ConvertTools', () => {
   });
 
   it('should generate an image', async () => {
-    await ConvertTools.generateImage(pageMock as Page);
+    await ConvertTools.generateImage(pageMock as unknown as Page);
     expect(pageMock.screenshot).toHaveBeenCalled();
   });
 });
