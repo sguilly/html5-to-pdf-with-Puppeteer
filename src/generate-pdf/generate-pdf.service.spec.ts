@@ -1,10 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { Cluster } from 'puppeteer-cluster';
-//import { getSpecProvidersImport } from '../../test/util/providers.utils';
-//import { configMock } from '../utils/mocks/config.mock.ts';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingService } from '@s3pweb/nestjs-common';
+import { Cluster } from 'puppeteer-cluster';
 import { getSpecProvidersImport } from '../../test/util/providers.utils';
 import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
 import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';

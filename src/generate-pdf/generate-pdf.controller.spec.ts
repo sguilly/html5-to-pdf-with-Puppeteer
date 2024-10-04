@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-//import { LoggingService } from '@s3pweb/nestjs-common';
 import { validate } from 'class-validator';
 import { Response } from 'express';
 import { getSpecProvidersImport, pdfBuffer } from '../../test/util/providers.utils';
 import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
 import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
 import { GeneratePdfController } from './generate-pdf.controller';
-//import { GeneratePdfService } from './generate-pdf.service';
 
 describe('GeneratePdfController', () => {
   let controller: GeneratePdfController;
@@ -17,7 +15,6 @@ describe('GeneratePdfController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GeneratePdfController],
       providers: [
-        //{ provide: GeneratePdfService, useValue: mockGeneratePdfService },
         ...getSpecProvidersImport(true), // add mutual providers with context
       ],
     }).compile();
