@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LoggingService, S3PLogger } from '@s3pweb/nestjs-common';

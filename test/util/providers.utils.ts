@@ -1,4 +1,3 @@
-// test/utils/providers.utils.ts
 import { ConfigService } from '@nestjs/config';
 import { LoggingService } from '@s3pweb/nestjs-common';
 import { GeneratePdfService } from '../../src/generate-pdf/generate-pdf.service';
