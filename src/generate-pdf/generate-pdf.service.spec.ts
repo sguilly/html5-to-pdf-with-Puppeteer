@@ -3,12 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingService } from '@s3pweb/nestjs-common';
 import { Cluster } from 'puppeteer-cluster';
-import { getSpecProvidersImport } from '../../test/util/providers.utils';
 import { GeneratePdfFromHtmlDto } from './dto/generate-pdf-html-dto';
 import { GeneratePdfFromUrlDto } from './dto/generate-pdf-url-dto';
 import { GeneratePdfService } from './generate-pdf.service';
 
-// complete cluster mock
+// Mock puppeteer-cluster
 jest.mock('puppeteer-cluster', () => ({
   Cluster: {
     launch: jest.fn(),
@@ -18,8 +17,8 @@ jest.mock('puppeteer-cluster', () => ({
 describe('GeneratePdfService', () => {
   let service: GeneratePdfService;
   let cluster: jest.Mocked<Cluster<GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto>>;
-  let mockConfigService: any;
-  let mockLoggingService: any;
+  let mockConfigService: ConfigService;
+  let mockLoggingService: LoggingService;
 
   beforeEach(async () => {
     cluster = {
@@ -31,16 +30,30 @@ describe('GeneratePdfService', () => {
     // Simulate Cluster.launch response
     (Cluster.launch as jest.Mock).mockResolvedValue(cluster);
 
-    // mock providers using the utility function with service context
-    const mockProviders = getSpecProvidersImport(false);
+    // Mocks services
+    mockConfigService = {
+      get: jest.fn().mockReturnValue({
+        maxConcurrency: 3,
+      }),
+    } as unknown as ConfigService;
+
+    mockLoggingService = {
+      getLogger: jest.fn().mockReturnValue({
+        info: jest.fn(),
+        error: jest.fn(),
+        warn: jest.fn(),
+      }),
+    } as unknown as LoggingService;
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GeneratePdfService, ...mockProviders],
+      providers: [
+        GeneratePdfService,
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: LoggingService, useValue: mockLoggingService },
+      ],
     }).compile();
 
     service = module.get<GeneratePdfService>(GeneratePdfService);
-    mockConfigService = module.get<ConfigService>(ConfigService); // Recover the exact instance used by the module
-    mockLoggingService = module.get<LoggingService>(LoggingService);
   });
 
   afterEach(() => {
@@ -56,33 +69,35 @@ describe('GeneratePdfService', () => {
       // get maxConcurrency from mockConfigService
       const maxConcurrency = mockConfigService.get('puppeteerFileGeneration').maxConcurrency;
 
-      // Check that Cluster.launch was called with appropriate options
       expect(Cluster.launch).toHaveBeenCalledWith({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
-        maxConcurrency: maxConcurrency, // Based on the mockConfigService
+        maxConcurrency: maxConcurrency,
+        retryLimit: 2,
         puppeteerOptions: {
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
         },
       });
 
-      // Check that service status is updated to active
+      //Check that service status is updated to active
       expect(service['status']).toBe('active');
 
-      expect(mockLoggingService.getLogger().info).toHaveBeenCalledWith({ uuid }, 'Cluster initialized successfully');
+      expect(mockLoggingService.getLogger('info').info).toHaveBeenCalledWith(
+        { uuid },
+        'Cluster initialized successfully',
+      );
     });
 
     it('should throw BadRequestException if maxConcurrency is invalid', async () => {
       // Change mock config to return invalid value
-      mockConfigService.get.mockReturnValueOnce(null);
+      (mockConfigService.get as jest.Mock).mockReturnValueOnce(null);
       await expect(service.onModuleInit(uuid)).rejects.toThrow(BadRequestException);
       // Ensure cluster will not be initialize
       expect(Cluster.launch).not.toHaveBeenCalled();
-      // Check that log captured the error
-      expect(mockLoggingService.getLogger().error).toHaveBeenCalledWith(
+      expect(mockLoggingService.getLogger('error').error).toHaveBeenCalledWith(
         { uuid },
         'Failed to initialize Puppeteer cluster',
-        expect.any(String), //stack error
+        expect.any(String), // stack error
       );
     });
 
@@ -94,7 +109,7 @@ describe('GeneratePdfService', () => {
       // Check that cluster status was updated to 'closed' after the failure
       expect(service['status']).toBe('closed');
       // Check that error was logged
-      expect(mockLoggingService.getLogger().error).toHaveBeenCalledWith(
+      expect(mockLoggingService.getLogger('error').error).toHaveBeenCalledWith(
         { uuid },
         'Failed to initialize Puppeteer cluster',
         expect.any(String), // Error stack
@@ -139,7 +154,7 @@ describe('GeneratePdfService', () => {
       await service.onModuleInit(uuid);
       const error = new Error('Task failed');
       cluster.execute.mockRejectedValueOnce(error);
-      const loggerErrorSpy = jest.spyOn(mockLoggingService.getLogger(), 'error');
+      const loggerErrorSpy = jest.spyOn(mockLoggingService.getLogger('error'), 'error');
 
       await expect(service.generate(uuid, params)).rejects.toThrow('Error generating PDF or Image');
       expect(loggerErrorSpy).toHaveBeenCalledWith({ uuid: uuid }, `Error generating content: ${error.message}`);
@@ -165,7 +180,7 @@ describe('GeneratePdfService', () => {
       // Simulate the scenario where the cluster is not initialized
       service['cluster'] = null;
 
-      const loggerWarnSpy = jest.spyOn(mockLoggingService.getLogger(), 'warn');
+      const loggerWarnSpy = jest.spyOn(mockLoggingService.getLogger('warn'), 'warn');
       await service.onModuleDestroy(uuid);
       // Check if the cluster close method was not called
       expect(cluster.close).not.toHaveBeenCalled();
@@ -188,7 +203,7 @@ describe('GeneratePdfService', () => {
       const errorHandler = cluster.on.mock.calls.find((call) => call[0] === 'taskerror')[1]; // get error handller
       errorHandler(mockError, mockData, true); // mock error with retry
 
-      expect(mockLoggingService.getLogger().warn).toHaveBeenCalledWith(
+      expect(mockLoggingService.getLogger('warn').warn).toHaveBeenCalledWith(
         { uuid },
         expect.stringContaining('Retrying... (Attempt 2)'),
       );
@@ -204,7 +219,7 @@ describe('GeneratePdfService', () => {
       const errorHandler = cluster.on.mock.calls.find((call) => call[0] === 'taskerror')[1];
       errorHandler(mockError, mockData, false);
 
-      expect(mockLoggingService.getLogger().error).toHaveBeenCalledWith(
+      expect(mockLoggingService.getLogger('error').error).toHaveBeenCalledWith(
         { uuid },
         expect.stringContaining(`Failed to process ${JSON.stringify(mockData)}: ${mockError.message}`),
       );
@@ -220,7 +235,7 @@ describe('GeneratePdfService', () => {
       const errorHandler = cluster.on.mock.calls.find((call) => call[0] === 'taskerror')[1];
       errorHandler(mockError, mockData, false); // Mock error without retry
 
-      expect(mockLoggingService.getLogger().error).toHaveBeenCalledWith(
+      expect(mockLoggingService.getLogger('error').error).toHaveBeenCalledWith(
         { uuid },
         expect.stringContaining(`Failed to process ${JSON.stringify(mockData)}: ${mockError.message}`),
       );

@@ -3,7 +3,6 @@ export function configMock() {
     puppeteerFileGeneration: {
       maxConcurrency: 3,
     },
-    maxConcurrency: 3,
     logger: {
       name: 'TESTS',
       logger: {

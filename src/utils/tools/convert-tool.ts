@@ -10,8 +10,7 @@ export class ConvertTools {
    * @param page - The Puppeteer Page instance where the content will be loaded.
    * @param data - Contains either a URL or HTML content, along with optional settings like waitFor.
    */
-
-  static async loadPage(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
+  static async loadPage(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto): Promise<void> {
     if ('url' in data) {
       // Navigate to the provided URL
       await page.goto(data.url);
@@ -34,8 +33,7 @@ export class ConvertTools {
    *
    * @param page - The Puppeteer Page instance where images need to be loaded.
    */
-
-  static async waitForImages(page: Page) {
+  static async waitForImages(page: Page): Promise<boolean> {
     await page.evaluate(async () => {
       const selectors = Array.from(document.querySelectorAll('img'));
       await Promise.all(
@@ -58,7 +56,7 @@ export class ConvertTools {
    *
    * @param page - The Puppeteer Page instance whose dimensions need to be adjusted.
    */
-  static async setPageDimensions(page: Page) {
+  static async setPageDimensions(page: Page): Promise<void> {
     // Get the body scroll width and height
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
     const bodyHeight = await page.evaluate(() => document.body.scrollHeight);
@@ -73,8 +71,7 @@ export class ConvertTools {
    * @param data - Contains PDF settings such as printBackground and pageNumber.
    * @returns The generated PDF buffer.
    */
-
-  static async generatePdf(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto) {
+  static async generatePdf(page: Page, data: GeneratePdfFromUrlDto | GeneratePdfFromHtmlDto): Promise<Uint8Array> {
     return page.pdf({
       format: 'A4',
       printBackground: data.printBackground, // Option to print background colors and images
@@ -95,8 +92,7 @@ export class ConvertTools {
    * @param page - The Puppeteer Page instance from which the screenshot will be generated.
    * @returns The generated image buffer.
    */
-
-  static async generateImage(page: Page) {
+  static async generateImage(page: Page): Promise<Uint8Array> {
     return page.screenshot(); // Take a screenshot of the page
   }
 }

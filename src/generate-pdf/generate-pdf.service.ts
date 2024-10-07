@@ -19,22 +19,29 @@ export class GeneratePdfService {
 
   constructor(
     logger: LoggingService,
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
   ) {
     this.log = logger.getLogger(GeneratePdfService.name);
   }
 
   async onModuleInit(uuid: string): Promise<void> {
     try {
-      const maxConcurrency = this.configService.get<number>('maxConcurrency');
+      const puppeteerConfig = this.configService.get('puppeteerFileGeneration');
 
-      if (typeof maxConcurrency !== 'number' || isNaN(maxConcurrency)) {
-        throw new BadRequestException('maxConcurrency must be a number');
+      if (
+        !puppeteerConfig ||
+        typeof puppeteerConfig.maxConcurrency !== 'number' ||
+        isNaN(puppeteerConfig.maxConcurrency)
+      ) {
+        throw new BadRequestException('maxConcurrency must be a valid number');
       }
+      const maxConcurrency = puppeteerConfig.maxConcurrency;
+
       // Cluster init, it's used by puppeteer library to handle many files or documents in same time
       this.cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
         maxConcurrency: maxConcurrency,
+        retryLimit: 2,
         puppeteerOptions: {
           headless: true,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],

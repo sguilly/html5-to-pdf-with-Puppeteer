@@ -30,7 +30,7 @@ Before you start, make sure you have the following items installed on your machi
 
 ## Started
 
-1. 1. Configuration
+1. Configuration
 
 ### Install and run
 

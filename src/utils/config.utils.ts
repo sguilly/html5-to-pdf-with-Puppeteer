@@ -8,7 +8,9 @@ export class ConfigUtils {
         name: config.get('name'),
         logger: config.get('logger'),
       },
-      maxConcurrency: config.get('puppeteerFileGeneration.maxConcurrency'),
+      puppeteerFileGeneration: {
+        maxConcurrency: config.get('puppeteerFileGeneration.maxConcurrency'),
+      },
     };
   }
 }

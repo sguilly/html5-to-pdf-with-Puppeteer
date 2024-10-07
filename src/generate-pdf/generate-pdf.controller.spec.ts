@@ -8,7 +8,6 @@ import { GeneratePdfController } from './generate-pdf.controller';
 
 describe('GeneratePdfController', () => {
   let controller: GeneratePdfController;
-  //const buffer: Buffer = Buffer.from('Generate Pdf Controller');
   const contentType: string = 'application/pdf';
 
   beforeEach(async () => {

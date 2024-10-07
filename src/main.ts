@@ -30,7 +30,17 @@ async function bootstrap() {
   app.enableCors({
     ...(!Utils.isDevMode()
       ? {
-          origin: [/^https?:\/\/localhost:3333$/],
+          origin: [
+            /\.keyroad\.xyz$/,
+            /\.keyroad\.io$/,
+            /\.s3pweb\.xyz$/,
+            /\.s3pweb\.io$/,
+            /\.mapandtruck\.xyz$/,
+            /\.mapandtruck\.io$/,
+
+            // For Cédric and his reporting app
+            /\.keyroad\.fr$/,
+          ],
         }
       : {}),
     allowedHeaders: ['Content-Type', 'Authorization', 'token'],
